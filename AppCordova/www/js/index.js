@@ -17,13 +17,39 @@
  * under the License.
  */
 
-// Wait for the deviceready event before using any of Cordova's device APIs.
-// See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
-document.addEventListener('deviceready', onDeviceReady, false);
+//Ouverture d'une websocket
+const ws = new WebSocket('ws://127.0.0.1:9898/');
+//Listener d'ouverture de websocket
+ws.onopen = function () {
+ console.log("Websocket ouvert - Client");
+};
 
-function onDeviceReady() {
-    // Cordova is now initialized. Have fun!
+/*
+Listener des messages entrants
+Selon le message du serveur que l'on vient de recevoir, on fait un affichage
+*/
+ws.onmessage = function (e) {
+    document.getElementById("messageServeur").innerHTML = e.data;
+    //Cas où l'authentification est validée par le serveur
+    if(e.data == "Authentification valide - Serveur"){
+         document.getElementById("messageServeur").style.color = "green";
+    }
+    //Cas où l'authentification est invalidée par le serveur
+    else if(e.data == "Authentification invalide - Serveur"){
+         document.getElementById("messageServeur").style.color = "red";
+    }
+    //Cas pour remettre le style par défault pour un message simple
+    else if(e.data == "Message bien reçu - Serveur"){
+             document.getElementById("messageServeur").style.color = "white";
+    }
+};
 
-    console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
-    document.getElementById('deviceready').classList.add('ready');
+/*
+Récupération des inputs du client, formattage en JSON et envoi vers le serveur
+*/
+function authentification(){
+    let login = document.getElementById("login").value;
+    let mdp = document.getElementById("mdp").value;
+    let json = JSON.stringify({ "login": login, "mdp": mdp });
+    ws.send(json);
 }
