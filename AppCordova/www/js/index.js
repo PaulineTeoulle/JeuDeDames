@@ -22,6 +22,7 @@ const ws = new WebSocket('ws://127.0.0.1:9898/');
 //Listener d'ouverture de websocket
 ws.onopen = function () {
  console.log("Websocket ouvert - Client");
+ console.log(ws.id); // ojIckSD2jqNzOqIrAGzL
 };
 
 /*

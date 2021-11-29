@@ -1,4 +1,4 @@
-//Connection to mongoDB
+//Connection a mongoDB
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/JeuDeDames');
  
@@ -11,17 +11,17 @@ db.once('open', function() {
 
 var Schema = mongoose.Schema;
 
-var userSchema = new Schema({
+const userSchema = new Schema({
   pseudo: String,
   mdp: String,
   nbPartiesJouees: Number,
   nbPartiesGagnees: Number
 });
 
-//Define a schema
+//Definition du schéma utilisateur
 var SomeUser  = mongoose.model('users', userSchema);
 
-//Creation of server
+//Creation du serveur
 const http = require('http');
 const server = http.createServer();
 server.listen(9898);
@@ -38,6 +38,8 @@ wsServer.on('request', function (request) {
   const connection = request.accept(null, request.origin);
   console.log("Connection au serveur depuis un client - Serveur");
 
+  //Un socket console.log(connection); 
+  
   //A la réception d'un message
   connection.on('message', function (message) {
 
@@ -54,11 +56,13 @@ wsServer.on('request', function (request) {
       messageIsJSON = false;
     }
 
+
     if (messageIsJSON) {
       //Récupération des données JSON envoyées par le client
       let login = parsedJson.login;
       let mdp = parsedJson.mdp;
-      addUserIfUnique(login,mdp, connection);
+      connectUser(login,mdp, connection);
+      //addUserIfUnique(login,mdp, connection);
     }
   });
 
@@ -66,10 +70,29 @@ wsServer.on('request', function (request) {
   connection.on('close', function (reasonCode, description) {
     console.log("Connection fermée par un client - Serveur");
   });
-
 });
 
+let usersConnectedList = []; //List socket pseudo
+let userWaitingList = []; // COntient les logins utilisateur attendant partie
+let userInGameList =[]; //COntient les logins des utilisateurs en partie
 
+//Connection d'un utilisateur
+//Récupération 
+function connectUser(login,mdp, connection){
+   SomeUser.findOne({ pseudo:login, mdp: mdp}, function (err, user) {
+    if (err) return handleError(err);
+    if(user !=null){
+      console.log("PRESENT");
+      let userInformations =[login,connexion];
+      usersConnectedList.push(userInformations); 
+    }
+    else {
+      console.log("EXISTE PAS");
+    }
+  });;
+}
+
+//Ajout d'un utilisateur si unique
 function addUserIfUnique(login,mdp, connection){
   SomeUser.countDocuments({ pseudo: login }, function (err, count) {
     if(count==0){
@@ -84,6 +107,7 @@ function addUserIfUnique(login,mdp, connection){
   });
 }
 
+//Ajout d'un utilisateur
 function addUser(login, mdp, connection){
   let instance =  new SomeUser({ pseudo: login, mdp:mdp, nbPartiesJouees: 0, nbPartiesGagnees: 0});
   instance.save(function (err) {
@@ -91,4 +115,25 @@ function addUser(login, mdp, connection){
     console.log(login + " sauvegardé en BDD.");
     connection.send("Sauvegarde en BDD - Serveur");
   });
+}
+
+function pickTwoUsers(userWaitingList){
+    let index1 = Math.floor(Math.random() * userWaitingList.length);
+    let player1 = userWaitingList[index1];
+
+    let index2 = Math.floor(Math.random() * userWaitingList.length);
+    let player2 = userWaitingList[index2];
+    return {player1, player2};
+}
+
+function startGame(player1, player2){
+}
+
+function removeUserInWaitingList(index){
+  userWaitingList.splice(index, 1);
+}
+
+
+function handleUserDisconnected(){
+
 }
