@@ -1,8 +1,8 @@
 {
   "name": "io.cordova.hellocordova",
-  "displayName": "HelloCordova",
+  "displayName": "Jeu de Dames",
   "version": "1.0.0",
-  "description": "A sample Apache Cordova application that responds to the deviceready event.",
+  "description": "Jeu de Dames.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,11 +10,14 @@
   "keywords": [
     "ecosystem:cordova"
   ],
-  "author": "Apache Cordova Team",
+  "author": "DESBARATS HABIB TEOULLE",
   "license": "Apache-2.0",
   "devDependencies": {
     "cordova-android": "^9.1.0",
-    "cordova-plugin-whitelist": "^1.3.4"
+    "cordova-browser": "^6.0.0",
+    "cordova-plugin-whitelist": "^1.3.4",
+    "save": "^2.4.0"
+
   },
   "cordova": {
     "plugins": {
@@ -24,8 +27,5 @@
       "android",
       "browser"
     ]
-  },
-  "dependencies": {
-    "cordova-browser": "6.0.0"
   }
 }
