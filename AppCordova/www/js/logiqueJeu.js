@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var chosenField = "none";
     var player = 1;
     var win = false;
+
     var isNextJump = false;
 
     //creer les piece de jeu
@@ -122,6 +123,7 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             player = 1;
         }
+
         if(win == false)
             console.log("Tour du joueur "+player);
     }
@@ -142,13 +144,29 @@ document.addEventListener("DOMContentLoaded", function() {
          }
      }
 
+    }
+
+    function chooseField(field) {
+        if (isNextJump == false) {
+            if (chosenField == field) {
+                chosenField = "none";
+            } else {
+                if (chosenField != "none") {           
+                }
+                chosenField = field;      
+            }
+        }
+    }
+
     //fonction qui retourne un vrai si on peut deplacer la piece en question
     function canMove(field) {
         var row = getRow(field);
         var col = getCol(field);
         var chosenRow = getRow(chosenField);
         var chosenCol = getCol(chosenField);
+
         console.log("["+(row+1)+", "+(col+1)+"]");
+
         if (chosenField != "none" && player == 1 && gameBoard[chosenRow][chosenCol] == 3 &&
             (Math.abs(row - chosenRow) == Math.abs(col - chosenCol)) && gameBoard[row][col] == 1) {
             return true;
@@ -170,7 +188,9 @@ document.addEventListener("DOMContentLoaded", function() {
     function move(field) {
         gameBoard[getRow(field)][getCol(field)] = gameBoard[getRow(chosenField)][getCol(chosenField)];
         gameBoard[getRow(chosenField)][getCol(chosenField)] = 1;
+
         document.querySelector('#' + chosenField).style.backgroundColor = "#A67D5D";
+
         chosenField = "none";
         changePlayer();
         draw();
@@ -273,6 +293,7 @@ document.addEventListener("DOMContentLoaded", function() {
         var row = getRow(field);
         var col = getCol(field);
         console.log("["+(row+1)+", "+(col+1)+"]");
+
         if (player == 1 && gameBoard[row][col] == 2 || gameBoard[row][col] == 3) {
             if (doesFieldExists(row + 2, col + 2) && gameBoard[row + 2][col + 2] == 1 &&
                 (gameBoard[row + 1][col + 1] == 6 || gameBoard[row + 1][col + 1] == 7)) {
@@ -321,20 +342,26 @@ document.addEventListener("DOMContentLoaded", function() {
             gameBoard[getRow(field)][getCol(field)] = gameBoard[getRow(chosenField)][getCol(chosenField)];
             gameBoard[getRow(chosenField)][getCol(chosenField)] = 1;
             gameBoard[mediumRow][mediumCol] = 1;
+
             console.log("Joueur: "+player+" a mange piece d'adversaire");
             document.querySelector('#' + chosenField).style.backgroundColor = "#A67D5D";
+
             if (canJumpTwoShots(field) == false) {
                 isNextJump = false;
                 chosenField = "none";
                 mediumRow = "none";
                 mediumCol = "none";
+
                 winner();
+
                 changePlayer();
                 draw();
             } else {
                 isNextJump = true;
                 chosenField = field;
+
                 document.querySelector('#' + chosenField).style.backgroundColor = "#25F400";
+
                 mediumRow = "none";
                 mediumCol = "none";
                 draw();
@@ -371,7 +398,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     //crée le plateau de jeu et les piece
     function createFields() {
+
         console.log("Tour du joueur "+player)
+
+
         for (var row = 0; row < 8; row++) {
             field[row] = [];
             for (var col = 0; col < 8; col++) {

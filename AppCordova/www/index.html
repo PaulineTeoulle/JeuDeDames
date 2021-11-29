@@ -36,12 +36,44 @@
         <meta name="color-scheme" content="light dark">
         <link rel="stylesheet" href="css/index.css">
         <script src="cordova.js"></script>
-        <script src="js/index.js"></script> 
+        <script src="js/index.js"></script>
+        <script src="js/logiqueJeu.js"></script>
         <title>Jeu De Dames</title>
     </head>
     <body>
         <div id="board"> 
         </div>
-        <script src="js/logiqueJeu.js"></script>
+        
+
+        <div id="log">
+            <p>Login :</p>
+            <p><input type="text" id="login" placeholder="Entrer login"></p>
+            <p>Mot de passe :</p>
+            <p><input type="text" id="mdp" placeholder="Entrer mot de passe"></p>
+            <p><button id="btn">Connexion</button></p>
+        </div>
+
+        <div id="choix" style="display:none;">
+            <p><a href="#board" id="nGame">Nouvelle partie ➔</a></p>
+            <p><a href="#classement" id="class">Classement générale ➔</a></p>
+        </div>
+
+        <div id="classement" style="display:none;">
+            <table>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Score</th>
+                    </tr>
+                <tr>
+                    <td id="user"></td> <!--récupérer user base de données-->
+                    <td id="score">100</td> <!--récupérer score base de données-->
+                </tr>
+            </table>
+        </div>
+
+        <div id="board" style="display:none;">
+            <!--table svg-->
+        </div>
+            
     </body>
 </html>
