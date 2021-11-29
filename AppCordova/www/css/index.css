@@ -2,6 +2,7 @@
 
 body {
     height:100vh;
+   background-color: #F0F0F0;
 }
 
 .log, .classement, .choix
@@ -37,37 +38,39 @@ h1 {
     text-align:center;
 }
 
-.event {
-    border-radius:4px;
-    color:#FFFFFF;
-    font-size:12px;
-    margin:0px 30px;
-    padding:2px 0px;
+.light {
+    position: relative;
+    background-color: #E8D0AA;
+    width: 80px;
+    height: 80px;
+    float: left;
 }
 
-.event.listening {
-    background-color:#333333;
-    display:block;
+.dark {
+    position: relative;
+    background-color: #A67D5D;
+    width: 80px;
+    height: 80px;
+    float: left;
 }
 
-.event.received {
-    background-color:#4B946A;
-    display:none;
+.crown {
+    position: absolute;
+    right: 25%;
+    top: 27%;
+    width: 50%;
 }
 
-#deviceready.ready .event.listening { display: none; }
-#deviceready.ready .event.received { display: block; }
+#board {
+    width: 640px;
+    height: 640px;
+    margin: auto;
 
-@keyframes fade {
-    from { opacity: 1.0; }
-    50% { opacity: 0.4; }
-    to { opacity: 1.0; }
 }
 
-.blink {
-    animation:fade 3000ms infinite;
-    -webkit-animation:fade 3000ms infinite;
-}
+
+@media screen and (max-width: 500px)
+{
 
 .light {
     position: relative;
@@ -99,9 +102,11 @@ h1 {
 
 }
 
-
-@media screen and (prefers-color-scheme: dark) {
     body {
-        background-image:linear-gradient(to bottom, #585858 0%, #1B1B1B 51%);
+        background-color: #F0F0F0;
+        margin:0 auto; 
     }
-}
+   
+  }
+
+  
