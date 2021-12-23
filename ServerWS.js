@@ -56,13 +56,11 @@ wsServer.on('request', function (request) {
       messageIsJSON = false;
     }
 
-
     if (messageIsJSON) {
       //Récupération des données JSON envoyées par le client
       let login = parsedJson.login;
       let mdp = parsedJson.mdp;
-      connectUser(login,mdp, connection);
-      //addUserIfUnique(login,mdp, connection);
+      addUserIfUnique(login,mdp, connection);
     }
   });
 
@@ -74,7 +72,7 @@ wsServer.on('request', function (request) {
 
 let usersConnectedList = []; //List socket pseudo
 let userWaitingList = []; // COntient les logins utilisateur attendant partie
-let userInGameList =[]; //COntient les logins des utilisateurs en partie
+let userInGameList = []; //COntient les logins des utilisateurs en partie
 
 //Connection d'un utilisateur
 //Récupération 
@@ -82,9 +80,12 @@ function connectUser(login,mdp, connection){
    SomeUser.findOne({ pseudo:login, mdp: mdp}, function (err, user) {
     if (err) return handleError(err);
     if(user !=null){
-      console.log("PRESENT");
-      let userInformations =[login,connexion];
+      console.log("AJOUT DANS LA LISTE DES CONNECTES");
+      let userInformations = [login,connection];
       usersConnectedList.push(userInformations); 
+      console.log(usersConnectedList);
+      console.log("Connecté");
+      connection.send("Utilisateur Connecté");
     }
     else {
       console.log("EXISTE PAS");
@@ -92,30 +93,7 @@ function connectUser(login,mdp, connection){
   });;
 }
 
-//Ajout d'un utilisateur si unique
-function addUserIfUnique(login,mdp, connection){
-  SomeUser.countDocuments({ pseudo: login }, function (err, count) {
-    if(count==0){
-      console.log("UNIQUE");
-      addUser(login, mdp, connection);
-    }
-    else {
-      console.log("NON UNIQUE");
-      console.log(login + " non sauvegardé en BDD. Pseudo non unique.");
-      connection.send("Erreur lors de la sauvegarde en BDD, pseudo déjà utilisé - Serveur");
-    }
-  });
-}
 
-//Ajout d'un utilisateur
-function addUser(login, mdp, connection){
-  let instance =  new SomeUser({ pseudo: login, mdp:mdp, nbPartiesJouees: 0, nbPartiesGagnees: 0});
-  instance.save(function (err) {
-    if (err) return handleError(err);
-    console.log(login + " sauvegardé en BDD.");
-    connection.send("Sauvegarde en BDD - Serveur");
-  });
-}
 
 function pickTwoUsers(userWaitingList){
     let index1 = Math.floor(Math.random() * userWaitingList.length);
@@ -136,4 +114,30 @@ function removeUserInWaitingList(index){
 
 function handleUserDisconnected(){
 
+}
+
+
+function addUserIfUnique(login,mdp, connection){
+  SomeUser.countDocuments({ pseudo: login }, function (err, count) {
+    if(count==0){
+      console.log("UNIQUE");
+      addUser(login, mdp, connection);
+    }
+    else {
+      console.log("NON UNIQUE");
+      console.log(login + " non sauvegardé en BDD. Pseudo non unique.");
+      connection.send("Erreur lors de la sauvegarde en BDD, pseudo déjà utilisé - Serveur");
+      connectUser(login,mdp,connection);
+    }
+  });
+}
+
+//Ajout d'un utilisateur
+function addUser(login, mdp, connection){
+  let instance =  new SomeUser({ pseudo: login, mdp:mdp, nbPartiesJouees: 0, nbPartiesGagnees: 0});
+  instance.save(function (err) {
+    if (err) return handleError(err);
+    console.log(login + " sauvegardé en BDD.");
+    connection.send("Sauvegarde en BDD - Serveur");
+  });
 }

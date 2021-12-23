@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -21,69 +20,70 @@
 //Ouverture d'une websocket
 const ws = new WebSocket('ws://127.0.0.1:9898/');
 //Listener d'ouverture de websocket
-ws.onopen = function () {
- console.log("Websocket ouvert - Client");
- console.log(ws.id); // ojIckSD2jqNzOqIrAGzL
+ws.onopen = function() {
+    console.log("Websocket ouvert - Client");
+
 };
 
+function displayClassement() {
+    document.getElementById("choix").style.display = "none";
+    document.getElementById('classement').style.display = "block";
+}
+
+function displayBoard() {
+    document.getElementById("choix").style.display = "none";
+    document.getElementById('board').style.display = "block";
+}
+
+function displayChoix() {
+    document.getElementById("log").style.display = "none";
+    document.getElementById("choix").style.display = "block";
+}
 /*
 Listener des messages entrants
 Selon le message du serveur que l'on vient de recevoir, on fait un affichage
 */
-ws.onmessage = function (e) {
+ws.onmessage = function(e) {
     document.getElementById("messageServeur").innerHTML = e.data;
     //Cas où l'authentification est validée par le serveur
-    if(e.data == "Authentification valide - Serveur"){
-         document.getElementById("messageServeur").style.color = "green";
+    if (e.data == "Authentification valide - Serveur") {
+        document.getElementById("messageServeur").style.color = "green";
+        document.getElementById("messageServeur").innerHTML = e.data;
+        console.log("Auth réussie");
     }
     //Cas où l'authentification est invalidée par le serveur
-    else if(e.data == "Authentification invalide - Serveur"){
-         document.getElementById("messageServeur").style.color = "red";
+    else if (e.data == "Authentification invalide - Serveur") {
+        document.getElementById("messageServeur").style.color = "red";
+
+        console.log("Auth non réussie");
     }
     //Cas pour remettre le style par défault pour un message simple
-    else if(e.data == "Message bien reçu - Serveur"){
-             document.getElementById("messageServeur").style.color = "white";
+    else if (e.data == "Message bien reçu - Serveur") {
+        document.getElementById("messageServeur").style.color = "white";
+    } else if (e.data == "Utilisateur Connecté") {
+        displayChoix();
     }
 };
+
 
 
 /*
 Récupération des inputs du client, formattage en JSON et envoi vers le serveur
 */
-function authentification(){
+function authentification() {
     let login = document.getElementById("login").value;
     let mdp = document.getElementById("mdp").value;
     let json = JSON.stringify({ "login": login, "mdp": mdp });
     ws.send(json);
 }
-=======
-    console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
-    document.getElementById('deviceready').classList.add('ready');
-}
-
-document.getElementById("btn").addEventListener("click", send);
 
 function send() {
     var log = document.getElementById("login").value;
     var mdp = document.getElementById("mdp").value;
     document.getElementById("user").innerHTML = log;
-    if(log!=="" && mdp!==""){
-    document.getElementById('log').style.display = "none";
-    document.getElementById('choix').style.display = "block";
+    if (log !== "" && mdp !== "") {
+        document.getElementById('log').style.display = "none";
+        document.getElementById('choix').style.display = "block";
     }
     //send(login, mdp) envoie variables au serveur
- }
-
- document.getElementById("nGame").addEventListener("click", displayGame);
-
- function displayGame() {
-    document.getElementById('choix').style.display = "none";
-    document.getElementById('board').style.display = "block";
- }
-
- document.getElementById("class").addEventListener("click", displayClass);
-
- function displayClass() {
-    document.getElementById('choix').style.display = "none";
-    document.getElementById('classement').style.display = "block";
- }
+}
