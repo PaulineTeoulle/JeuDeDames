@@ -22,7 +22,7 @@ ws.onmessage = function(e) {
     if (e.data == "Authentification valide - Serveur") {
         document.getElementById("messageServeur").style.color = "green";
         document.getElementById("messageServeur").innerHTML = e.data;
-        console.log("Auth réussie");
+        console.log("Utilisateur Connecté");
     } else if (e.data == "Utilisateur Connecté") {
         displayChoix();
     }
@@ -39,6 +39,13 @@ function authentification() {
     mdp = document.getElementById("mdp").value;
     let json = JSON.stringify({ "message": "Auth", "login": login, "mdp": mdp });
     if (login != "" && mdp != "") {
+        ws.send(json);
+    }
+}
+
+function saveScore() {
+    let json = JSON.stringify({ "message": "Score Update", "login": login });
+    if (login != "") {
         ws.send(json);
     }
 }

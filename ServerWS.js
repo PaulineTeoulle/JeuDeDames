@@ -1,6 +1,6 @@
 //Connection a mongoDB
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/JeuDeDames');
+mongoose.connect('mongodb://127.0.0.1:27017/JeuDeDames');
 
 var db = mongoose.connection;
 
@@ -74,6 +74,11 @@ wsServer.on('request', function(request) {
             let mdp = parsedJson.mdp;
             if (messageJSON == "Auth") {
                 addUserIfUnique(login, mdp, connection);
+
+            }
+            if (messageJSON == "Score Update") {
+                updateScore(login);
+
             }
 
             if (messageJSON == "En attente d'une partie") {
@@ -155,5 +160,21 @@ function addUser(login, mdp, connection) {
         if (err) return handleError(err);
         //console.log(login + " sauvegardé en BDD.");
         connection.send("Sauvegarde en BDD - Serveur");
+    });
+}
+
+function updateScore(login) {
+    let score = 0;
+    SomeUser.findOne({ pseudo: login }, 'nbPartiesJouees nbPartiesGagnees', function(err, user) {
+        if (err) return handleError(err);
+        if (user.nbPartiesJouees != 0) {
+            score = user.nbPartiesGagnees / user.nbPartiesJouees * 100;
+        }
+        console.log(score);
+    });
+
+    topScore.findOneAndReplace({ pseudo: login }, { pseudo: login, score: score }, function(err, user) {
+        if (err) return handleError(err);
+        console.log(topScore.find());
     });
 }
