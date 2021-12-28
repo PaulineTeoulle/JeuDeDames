@@ -18,8 +18,14 @@ const userSchema = new Schema({
     nbPartiesGagnees: Number
 });
 
+const topScoreSchema = new Schema({
+    pseudo: String,
+    score: Number
+})
+
 //Definition du schéma utilisateur
 var SomeUser = mongoose.model('users', userSchema);
+var topScore = mongoose.model('topScore', topScoreSchema);
 
 //Creation du serveur
 const http = require('http');
@@ -113,9 +119,7 @@ function pickTwoUsers(userWaitingList) {
 }
 
 
-function searchDuo() {
-
-}
+function searchDuo() {}
 
 function startGame(player1, player2) {}
 
