@@ -18,9 +18,10 @@
     under the License.
 -->
 <html>
-    <head>
-        <meta charset="utf-8">
-        <!--
+
+<head>
+    <meta charset="utf-8">
+    <!--
         Customize this policy to fit your own app's needs. For more guidance, see:
             https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
         Some notes:
@@ -29,50 +30,62 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;connect-src *;">
-        <meta name="format-detection" content="telephone=no">
-        <meta name="msapplication-tap-highlight" content="no">
-        <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
-        <meta name="color-scheme" content="light dark">
-        <link rel="stylesheet" href="css/index.css">
-        <script src="cordova.js"></script>
-        <script src="js/index.js"></script>
-        <script src="js/logiqueJeu.js"></script>
-        <title>Jeu De Dames</title>
-    </head>
-    <body>
-        <div id="board"> 
-        </div>
-        
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline';
+          
+          style-src 'unsafe-inline' 'self';
+          media-src *;
+          img-src 'self' data: content:;
+          connect-src * ; 
+          script-src 'self' http://* 'unsafe-inline' 'unsafe-eval'; 
+          font-src 'self' data: fonts.gstatic.com;;
+          ">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="cordova.js"></script>
+    <script src="js/index.js"></script>
+    <script src="js/logiqueJeu.js"></script>
+    <script src="js/displayContent.js"></script>
+    <title>Jeu De Dames</title>
+</head>
 
-        <div id="log">
-            <p>Login :</p>
-            <p><input type="text" id="login" placeholder="Entrer login"></p>
-            <p>Mot de passe :</p>
-            <p><input type="text" id="mdp" placeholder="Entrer mot de passe"></p>
-            <p><button id="btn">Connexion</button></p>
-        </div>
+<body>
 
-        <div id="choix" style="display:none;">
-            <p><a href="#board" id="nGame">Nouvelle partie ➔</a></p>
-            <p><a href="#classement" id="class">Classement générale ➔</a></p>
-        </div>
+    <div id="log">
+        <p>Login :</p>
+        <p><input type="text" id="login" placeholder="Entrer login"></p>
+        <p>Mot de passe :</p>
+        <p><input type="text" id="mdp" placeholder="Entrer mot de passe"></p>
+        <button type="button" id="AuthButton" onclick="authentification()">Se connecter</button>
+        <p id="messageServeur"></p>
+    </div>
 
-        <div id="classement" style="display:none;">
-            <table>
-                    <tr>
-                        <th>Utilisateur</th>
-                        <th>Score</th>
-                    </tr>
-                <tr>
-                    <td id="user"></td> <!--récupérer user base de données-->
-                    <td id="score">100</td> <!--récupérer score base de données-->
-                </tr>
-            </table>
-        </div>
+    <div id="choix" style="display: none;">
+        <p><a href="#board" id="nGame" onclick="handleNewGame()">Nouvelle partie ➔</a></p>
+        <p><a href="#classement" id="class" onclick="displayClassement()">Classement général ➔</a></p>
+    </div>
 
-        <div id="board" style="display:none;">
-            <!--table svg-->
-      </div>
-    </body>
+    <div id="classement" style="display: none;">
+        <table>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Score</th>
+            </tr>
+            <tr>
+                <td id="user"></td>
+                <!--récupérer user base de données-->
+                <td id="score">100</td>
+                <!--récupérer score base de données-->
+            </tr>
+        </table>
+    </div>
+
+    <div id="board" style="display: none;">
+
+        <!--table svg-->
+    </div>
+</body>
+
 </html>
