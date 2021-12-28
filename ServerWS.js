@@ -18,8 +18,25 @@ const userSchema = new Schema({
     nbPartiesGagnees: Number
 });
 
+//schéma utilisateur
+const partySchema = new Schema({
+    p1: { 
+        type: String, 
+        required: true 
+    },
+    p2: { type: String,
+          required: true 
+    },
+    winner: String,
+    loser: String
+});
+
+
 //Definition du schéma utilisateur
 var SomeUser = mongoose.model('users', userSchema);
+
+//Definition du schémapartie
+let Partie = mongoose.model('Partie', partySchema);
 
 //Creation du serveur
 const http = require('http');
