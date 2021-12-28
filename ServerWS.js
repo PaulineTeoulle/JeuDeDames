@@ -35,8 +35,8 @@ const partySchema = new Schema({
 //Definition du schéma utilisateur
 var SomeUser = mongoose.model('users', userSchema);
 
-//Definition du schémapartie
-let Partie = mongoose.model('Partie', partySchema);
+//Definition du schéma partie
+let Party = mongoose.model('Partie', partySchema);
 
 //Creation du serveur
 const http = require('http');
@@ -90,6 +90,10 @@ wsServer.on('request', function(request) {
             if (messageJSON == "En attente d'une partie") {
                 addUserInWaitingList(login, connection);
             }
+            
+            //creer une nouvelle partie
+            newParty(login, login);
+
         }
     });
 
@@ -169,4 +173,23 @@ function addUser(login, mdp, connection) {
         //console.log(login + " sauvegardé en BDD.");
         connection.send("Sauvegarde en BDD - Serveur");
     });
+}
+
+
+//Creer une nouvelle partie
+function newParty(player1, player2) {
+    let newParty = new Party({
+        p1: player1,
+        p2: player2,
+        winner: "",
+        loser: ""
+    });
+
+    //Stocker la parti en base de données
+    try{
+        newParty.save();
+        console.log("\nPartie sauvgarder en BDD\n");
+    }catch(e){
+        console.error(e)
+    };
 }
