@@ -64,8 +64,9 @@
 
     <div id="choix" style="display: none;">
         <p><a href="#board" id="nGame" onclick="handleNewGame()">Nouvelle partie ➔</a></p>
-        <p><a href="#classement" id="class" onclick="displayClassement()">Classement général ➔</a></p>
+        <p><a href="#classement" id="class" onclick="askForClassement()">Classement général ➔</a></p>
         <button type="button" onclick="saveScore()">Sauvegarder le score</button>
+        <p id="messageServeur"></p>
     </div>
 
     <div id="classement" style="display: none;">
@@ -81,6 +82,7 @@
                 <!--récupérer score base de données-->
             </tr>
         </table>
+        <p id="messageServeur"></p>
     </div>
 
     </div>

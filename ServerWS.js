@@ -51,7 +51,8 @@ wsServer.on('request', function(request) {
 
         //Envoi d'un accusé de récéption au client
         console.log("Message reçu du client : " + message.utf8Data + " - Serveur");
-        connection.send("Message bien reçu - Serveur");
+        let json = JSON.stringify({ "message": "Message bien reçu - Serveur" });
+        connection.send(json);
 
         //Gestion du message si c'est un JSON ou non
         let messageIsJSON = true;
@@ -84,6 +85,9 @@ wsServer.on('request', function(request) {
             if (messageJSON == "En attente d'une partie") {
                 addUserInWaitingList(login, connection);
             }
+            if (messageJSON == "Classement") {
+                getClassement(connection);
+            }
         }
     });
 
@@ -103,7 +107,8 @@ function connectUser(login, mdp, connection) {
     let userInformations = [login, connection];
     usersConnectedList.push(userInformations);
     console.log("Ajout de " + login + " dans la connected list");
-    connection.send("Utilisateur Connecté");
+    let json = JSON.stringify({ "message": "Utilisateur Connecté" });
+    connection.send(json);
 }
 
 function addUserInWaitingList(login, connection) {
@@ -198,4 +203,13 @@ function updateNbPartiesGagnees(login) {
         user.nbPartiesGagnees += 1;
     });
     console.log("updateNbPartiesGagnees")
+}
+
+function getClassement(connection) {
+    topScore.find(function(err, scores) {
+        if (err) return handleError(err);
+        console.log(scores);
+        let json = JSON.stringify({ "message": "Classement chargé", "scores": scores });
+        connection.send(json);
+    });
 }

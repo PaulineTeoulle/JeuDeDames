@@ -12,19 +12,28 @@ function handleNewGame() {
     displayBoard();
 }
 
+function askForClassement() {
+    let json = JSON.stringify({ "message": "Classement" });
+    ws.send(json);
+}
+
 /*
 Listener des messages entrants
 Selon le message du serveur que l'on vient de recevoir, on fait un affichage
 */
 ws.onmessage = function(e) {
     document.getElementById("messageServeur").innerHTML = e.data;
+    //console.log(e.data);
+    var object = JSON.parse(e.data);
+    console.log(object["message"]);
     //Cas où l'authentification est validée par le serveur
-    if (e.data == "Authentification valide - Serveur") {
+    if (object["message"] == "Authentification valide - Serveur") {
         document.getElementById("messageServeur").style.color = "green";
         document.getElementById("messageServeur").innerHTML = e.data;
-        console.log("Utilisateur Connecté");
-    } else if (e.data == "Utilisateur Connecté") {
+    } else if (object["message"] == "Utilisateur Connecté") {
         displayChoix();
+    } else if (object["message"] == "Classement chargé") {
+        displayClassement(object["scores"]);
     }
 };
 
