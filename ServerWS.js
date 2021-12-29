@@ -25,7 +25,7 @@ const topScoreSchema = new Schema({
 
 //Definition du schéma utilisateur
 var SomeUser = mongoose.model('users', userSchema);
-var topScore = mongoose.model('topScore', topScoreSchema);
+var topScore = mongoose.model('topscores', topScoreSchema);
 
 //Creation du serveur
 const http = require('http');
@@ -77,7 +77,7 @@ wsServer.on('request', function(request) {
 
             }
             if (messageJSON == "Score Update") {
-                updateScore(login);
+                updateTopScore(login);
 
             }
 
@@ -96,7 +96,7 @@ wsServer.on('request', function(request) {
 let usersConnectedList = []; //List socket pseudo
 let userWaitingList = []; // Contient les logins utilisateur attendant partie
 let userInGameList = []; //Contient les logins des utilisateurs en partie
-
+let jsonMessageToClient;
 //Connection d'un utilisateur
 //Récupération 
 function connectUser(login, mdp, connection) {
@@ -141,13 +141,9 @@ function handleUserDisconnected() {
 function addUserIfUnique(login, mdp, connection) {
     SomeUser.countDocuments({ pseudo: login }, function(err, count) {
         if (count == 0) {
-            //console.log("UNIQUE");
             addUser(login, mdp, connection);
             connectUser(login, mdp, connection);
         } else {
-            //console.log("NON UNIQUE");
-            console.log(login + " non sauvegardé en BDD. Pseudo non unique.");
-            connection.send("Erreur lors de la sauvegarde en BDD, pseudo déjà utilisé - Serveur");
             connectUser(login, mdp, connection);
         }
     });
@@ -158,23 +154,39 @@ function addUser(login, mdp, connection) {
     let instance = new SomeUser({ pseudo: login, mdp: mdp, nbPartiesJouees: 0, nbPartiesGagnees: 0 });
     instance.save(function(err) {
         if (err) return handleError(err);
-        //console.log(login + " sauvegardé en BDD.");
-        connection.send("Sauvegarde en BDD - Serveur");
+        console.log("addUser");
+        createTopScore(login);
     });
 }
 
-function updateScore(login) {
+function createTopScore(login) {
+    let instanceTopScore = new topScore({ pseudo: login, score: 0 });
+    instanceTopScore.save(function(err) {
+        if (err) return handleError(err);
+        console.log("createTopScore")
+    });
+}
+
+function updateTopScore(login) {
     let score = 0;
     SomeUser.findOne({ pseudo: login }, 'nbPartiesJouees nbPartiesGagnees', function(err, user) {
         if (err) return handleError(err);
         if (user.nbPartiesJouees != 0) {
             score = user.nbPartiesGagnees / user.nbPartiesJouees * 100;
         }
-        console.log(score);
     });
 
     topScore.findOneAndReplace({ pseudo: login }, { pseudo: login, score: score }, function(err, user) {
         if (err) return handleError(err);
-        console.log(topScore.find());
     });
+
+    console.log("updateTopScore")
+}
+
+function updateNbPartiesJouees(login) {
+    SomeUser.findOne({ pseudo: login }, 'nbPartiesJouees', function(err, user) {
+        if (err) return handleError(err);
+        user.nbPartiesJouees += 1;
+    });
+    console.log("updateNbPartiesJouees")
 }
