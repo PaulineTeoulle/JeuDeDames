@@ -190,3 +190,12 @@ function updateNbPartiesJouees(login) {
     });
     console.log("updateNbPartiesJouees")
 }
+
+
+function updateNbPartiesGagnees(login) {
+    SomeUser.findOne({ pseudo: login }, 'nbPartiesGagnees', function(err, user) {
+        if (err) return handleError(err);
+        user.nbPartiesGagnees += 1;
+    });
+    console.log("updateNbPartiesGagnees")
+}
