@@ -60,7 +60,7 @@ console.log("Serveur ouvert");
 // Mise en place des événements WebSockets
 wsServer.on('request', function(request) {
     const connection = request.accept(null, request.origin);
-    console.log("Connection au serveur depuis un client - Serveur");
+    console.log("Connection d'un client - Serveur");
 
     //Un socket console.log(connection); 
 
@@ -68,7 +68,7 @@ wsServer.on('request', function(request) {
     connection.on('message', function(message) {
 
         //Envoi d'un accusé de récéption au client
-        console.log("Message reçu du client : " + message.utf8Data + " - Serveur");
+        // console.log("Message reçu du client : " + message.utf8Data + " - Serveur");
         let json = JSON.stringify({ "message": "Message bien reçu - Serveur" });
         connection.send(json);
 
@@ -80,7 +80,7 @@ wsServer.on('request', function(request) {
          var parsedJson*/
         try {
             parsedJson = JSON.parse(message.utf8Data);
-            console.log(parsedJson);
+            // console.log(parsedJson);
 
         } catch (err) {
             messageIsJSON = false;
@@ -90,6 +90,8 @@ wsServer.on('request', function(request) {
             //Récupération des données JSON envoyées par le client
             let messageJSON = parsedJson.message;
             let login = parsedJson.login;
+            connectionInfo = connection;
+            loginInfo = login;
             let mdp = parsedJson.mdp;
             if (messageJSON == "Auth") {
                 addUserIfUnique(login, mdp, connection);
@@ -102,36 +104,41 @@ wsServer.on('request', function(request) {
 
             if (messageJSON == "En attente d'une partie") {
                 addUserInWaitingList(login, connection);
+                searchForDuo(userWaitingList, connection);
             }
 
             if (messageJSON == "Création d'une nouvelle partie") {
-
                 //creer une nouvelle partie
-                newParty(login, login);
+                // newParty(login, login);
             }
 
             if (messageJSON == "Classement") {
                 getClassement(connection);
             }
+
         }
     });
 
     //A la fermeture d'une connection
     connection.on('close', function(reasonCode, description) {
-        console.log("Connection fermée par un client - Serveur");
+        removeUserInConnectedList(loginInfo, connectionInfo);
+        removeUserInWaitingList(loginInfo, connectionInfo);
+        console.log("Déconnection d'un client - Serveur");
     });
 });
 
+let loginInfo;
+let connectionInfo;
 let usersConnectedList = []; //List socket pseudo
 let userWaitingList = []; // Contient les logins utilisateur attendant partie
 let userInGameList = []; //Contient les logins des utilisateurs en partie
 let jsonMessageToClient;
+
 //Connection d'un utilisateur
 //Récupération 
 function connectUser(login, mdp, connection) {
     let userInformations = [login, connection];
     usersConnectedList.push(userInformations);
-    console.log("Ajout de " + login + " dans la connected list");
     let json = JSON.stringify({ "message": "Utilisateur Connecté" });
     connection.send(json);
 }
@@ -140,32 +147,63 @@ function addUserInWaitingList(login, connection) {
     console.log("Ajout de " + login + " dans la waiting list");
     let userInformations = [login, connection];
     userWaitingList.push(userInformations);
+}
+
+
+function searchForDuo(userWaitingList, connection) {
+    if (userWaitingList.length >= 2) {
+        console.log("searchForDuo");
+        let duo = pickTwoUsers(userWaitingList);
+        let pseudo1 = duo["pseudo1"][0];
+        let pseudo2 = duo["pseudo2"][0];
+        removeUserInWaitingList(pseudo1, connectionInfo);
+        removeUserInWaitingList(pseudo2, connectionInfo);
+
+        let json = JSON.stringify({ "message": "Duo trouvé" });
+        connection.send(json);
+    }
+}
+
+function pickTwoUsers(userWaitingList) {
+    let index1 = Math.floor(Math.random() * userWaitingList.length);
+    let pseudo1 = userWaitingList[index1];
+    let index2 = Math.floor(Math.random() * userWaitingList.length);
+    let pseudo2 = userWaitingList[index2];
+    var duo = { "pseudo1": pseudo1, "pseudo2": pseudo2 }
+    return duo;
+}
+
+function startGame(player1, player2) {}
+
+function removeUserInWaitingList(login, connection) {
+    console.log(userWaitingList);
+    console.log("removeUserWaitingList");
+    console.log(login);
+
+    let userInformations = [login, connection];
+    let indexOfUser = userWaitingList.indexOf(userInformations);
+    userWaitingList.splice(indexOfUser, 1);
     console.log(userWaitingList);
 }
 
 
-function pickTwoUsers(userWaitingList) {
-    let index1 = Math.floor(Math.random() * userWaitingList.length);
-    let player1 = userWaitingList[index1];
+function removeUserInConnectedList(login, connection) {
+    console.log(usersConnectedList);
+    console.log("usersConnectedList");
+    console.log(login);
 
-    let index2 = Math.floor(Math.random() * userWaitingList.length);
-    let player2 = userWaitingList[index2];
-    return { player1, player2 };
-}
-
-
-function searchDuo() {}
-
-function startGame(player1, player2) {}
-
-function removeUserInWaitingList(index) {
-    userWaitingList.splice(index, 1);
+    let userInformations = [login, connection];
+    let indexOfUser = usersConnectedList.indexOf(userInformations);
+    usersConnectedList.splice(indexOfUser, 1);
+    console.log(usersConnectedList);
 }
 
 
 function handleUserDisconnected() {
 
 }
+
+
 
 
 function addUserIfUnique(login, mdp, connection) {
@@ -184,7 +222,7 @@ function addUser(login, mdp, connection) {
     let instance = new SomeUser({ pseudo: login, mdp: mdp, nbPartiesJouees: 0, nbPartiesGagnees: 0 });
     instance.save(function(err) {
         if (err) return handleError(err);
-        console.log("addUser");
+        //console.log("addUser");
         createTopScore(login);
     });
 }
@@ -193,7 +231,7 @@ function createTopScore(login) {
     let instanceTopScore = new topScore({ pseudo: login, score: 0 });
     instanceTopScore.save(function(err) {
         if (err) return handleError(err);
-        console.log("createTopScore")
+        //console.log("createTopScore")
     });
 }
 
@@ -210,7 +248,7 @@ function updateTopScore(login) {
         if (err) return handleError(err);
     });
 
-    console.log("updateTopScore")
+    //console.log("updateTopScore")
 }
 
 function updateNbPartiesJouees(login) {
@@ -218,7 +256,7 @@ function updateNbPartiesJouees(login) {
         if (err) return handleError(err);
         user.nbPartiesJouees += 1;
     });
-    console.log("updateNbPartiesJouees")
+    //console.log("updateNbPartiesJouees")
 }
 
 
@@ -227,13 +265,13 @@ function updateNbPartiesGagnees(login) {
         if (err) return handleError(err);
         user.nbPartiesGagnees += 1;
     });
-    console.log("updateNbPartiesGagnees")
+    //console.log("updateNbPartiesGagnees")
 }
 
 function getClassement(connection) {
     topScore.find(function(err, scores) {
         if (err) return handleError(err);
-        console.log(scores);
+        //console.log(scores);
         let json = JSON.stringify({ "message": "Classement chargé", "scores": scores });
         connection.send(json);
     });
@@ -252,7 +290,7 @@ function newParty(player1, player2) {
     //Stocker la parti en base de données
     try {
         newParty.save();
-        console.log("\nPartie sauvgarder en BDD\n");
+        //console.log("\nPartie sauvgarder en BDD\n");
     } catch (e) {
         console.error(e)
     };
