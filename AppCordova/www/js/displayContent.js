@@ -7,6 +7,7 @@ function displayClassement(object) {
 function displayBoard() {
     document.getElementById("choix").style.display = "none";
     document.getElementById('board').style.display = "block";
+    document.getElementById('classement').style.display = "none";
 }
 
 function displayChoix() {
@@ -16,7 +17,7 @@ function displayChoix() {
 
 function getDataClassement(object) {
     console.log(object);
-    var classement = document.getElementById("classement");
+    var classement = document.getElementById("scoreBoard");
     var tbl = document.createElement("table");
     var tblBody = document.createElement("tbody");
 

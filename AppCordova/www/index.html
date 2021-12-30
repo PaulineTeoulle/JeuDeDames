@@ -62,10 +62,10 @@
                     <div class="card shadow-2-strong" style="border-radius: 1rem;">
                         <div class="card-body p-5 text-center">
 
-                            <h3 class="mb-5">Connexion</h3>
+                            <h3 class="mb-5">Connexion/Inscription</h3>
 
                             <div class="form-outline mb-4">
-                                <label class="form-label" for="login">Login :</label>
+                                <label class="form-label" for="login">Pseudo :</label>
                                 <input type="email" id="login" class="form-control form-control-lg" />
                             </div>
 
@@ -73,12 +73,8 @@
                                 <label class="form-label" for="mdp">Mot de passe :</label>
                                 <input type="password" id="mdp" class="form-control form-control-lg" />
                             </div>
-
-                            <!-- Checkbox -->
-
                             <button class="btn btn-primary btn-lg btn-block" type="button" id="AuthButton" onclick="authentification()">Connexion</button>
                             <p id="messageServeur"></p>
-
                         </div>
                     </div>
                 </div>
@@ -93,7 +89,8 @@
                     <div class="card shadow-2-strong" style="border-radius: 1rem;">
                         <div class="card-body p-5 text-center">
                             <button class="btn btn-primary btn-lg btn-block" type="button" id="nGame" onclick="handleNewGame()">Nouvelle partie ➔</button>
-                            <button class="btn btn-primary btn-lg btn-block" type="button" id="class" onclick="displayClassement()">Classement général ➔</button>
+                            <button class="btn btn-primary btn-lg btn-block" type="button" id="class" onclick="askForClassement()">Classement général ➔</button>
+                            <p id="messageServeur"></p>
                         </div>
                     </div>
                 </div>
@@ -101,25 +98,22 @@
         </div>
     </section>
 
-
-    <div id="classement" style="display: none;">
-        <table>
-            <tr>
-                <th>Utilisateur</th>
-                <th>Score</th>
-            </tr>
-            <tr>
-                <td id="user"></td>
-                <!--récupérer user base de données-->
-                <td id="score">100</td>
-                <!--récupérer score base de données-->
-            </tr>
-        </table>
-    </div>
+    <section id="classement" id="log" class="vh-100" style="background-color: #508bfc;">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                    <div class="card shadow-2-strong" style="border-radius: 1rem;">
+                        <div class="card-body p-5 text-center">
+                            <div id="scoreBoard"></div>
+                            <p id="messageServeur"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <div id="board" style="display: none;">
-
-        <!--table svg-->
     </div>
 </body>
 
