@@ -18,25 +18,19 @@ const userSchema = new Schema({
     nbPartiesGagnees: Number
 });
 
-//schéma utilisateur
+//schéma partie en cours
 const currentGameSchema = new Schema({
-    p1: {
-        type: String,
-        required: true
-    },
-    p2: {
-        type: String,
-        required: true
-    },
-    winner: String,
-    loser: String
+    pseudo1: String,
+    pseudo2: String,
+    matrice: [
+        [Number]
+    ]
 });
-
-
+//schéma partie finie
 const finishedGameSchema = new Schema({
-    p1: userSchema.pseudo,
-    p2: userSchema.pseudo,
-    winner: userSchema.pseudo
+    pseudo1: String,
+    pseudo2: String,
+    winner: String
 });
 
 const topScoreSchema = new Schema({
@@ -261,11 +255,10 @@ function newParty(player1, player2) {
         console.log("\nPartie sauvgarder en BDD\n");
     } catch (e) {
         console.error(e)
-    }
-    ;
+    };
 }
 
 //Ajout d'une partie
 function addFinishGame(p1, p2, winner) {
-    let instance = new finishedGame({p1: userSchema.pseudo, p2: userSchema.pseudo, winner: none})
+    let instance = new finishedGame({ pseudo1: p1, pseudo2: p2, winner: winner })
 }
