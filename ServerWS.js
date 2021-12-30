@@ -20,18 +20,12 @@ const userSchema = new Schema({
 
 //schéma utilisateur
 const currentGameSchema = new Schema({
-    p1: {
-        type: String,
-        required: true
-    },
-    p2: {
-        type: String,
-        required: true
-    },
-    winner: String,
-    loser: String
+    pseudo1: String,
+    pseudo2: String,
+    matrice: [
+        [Number]
+    ]
 });
-
 
 const finishedGameSchema = new Schema({
     p1: userSchema.pseudo,
@@ -48,8 +42,8 @@ const topScoreSchema = new Schema({
 var SomeUser = mongoose.model('users', userSchema);
 var topScore = mongoose.model('topscores', topScoreSchema);
 //Definition du schéma partie
-var currentGame = mongoose.model('Partie', currentGameSchema);
-var finishedGame = mongoose.model('game', finishedGameSchema);
+var currentGame = mongoose.model('partiesencours', currentGameSchema);
+var finishedGame = mongoose.model('partiesterminees', finishedGameSchema);
 
 //Creation du serveur
 const http = require('http');
@@ -261,11 +255,10 @@ function newParty(player1, player2) {
         console.log("\nPartie sauvgarder en BDD\n");
     } catch (e) {
         console.error(e)
-    }
-    ;
+    };
 }
 
 //Ajout d'une partie
 function addFinishGame(p1, p2, winner) {
-    let instance = new finishedGame({p1: userSchema.pseudo, p2: userSchema.pseudo, winner: none})
+    let instance = new finishedGame({ p1: userSchema.pseudo, p2: userSchema.pseudo, winner: none })
 }
