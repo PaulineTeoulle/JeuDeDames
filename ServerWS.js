@@ -42,8 +42,8 @@ const topScoreSchema = new Schema({
 var SomeUser = mongoose.model('users', userSchema);
 var topScore = mongoose.model('topscores', topScoreSchema);
 //Definition du schéma partie
-var currentGame = mongoose.model('Partie', currentGameSchema);
-var finishedGame = mongoose.model('game', finishedGameSchema);
+var currentGame = mongoose.model('partiesencours', currentGameSchema);
+var finishedGame = mongoose.model('partiesterminees', finishedGameSchema);
 
 //Creation du serveur
 const http = require('http');
