@@ -1,6 +1,6 @@
 //Connection a mongoDB
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/JeuDeDames');
+mongoose.connect('mongodb://127.0.0.1:27017/JeuDeDames');
 
 var db = mongoose.connection;
 
@@ -19,24 +19,37 @@ const userSchema = new Schema({
 });
 
 //schéma utilisateur
-const partySchema = new Schema({
-    p1: { 
-        type: String, 
-        required: true 
+const currentGameSchema = new Schema({
+    p1: {
+        type: String,
+        required: true
     },
-    p2: { type: String,
-          required: true 
+    p2: {
+        type: String,
+        required: true
     },
     winner: String,
     loser: String
 });
 
 
+const finishedGameSchema = new Schema({
+    p1: userSchema.pseudo,
+    p2: userSchema.pseudo,
+    winner: userSchema.pseudo
+});
+
+const topScoreSchema = new Schema({
+    pseudo: String,
+    score: Number
+});
+
 //Definition du schéma utilisateur
 var SomeUser = mongoose.model('users', userSchema);
-
+var topScore = mongoose.model('topscores', topScoreSchema);
 //Definition du schéma partie
-let Party = mongoose.model('Partie', partySchema);
+var currentGame = mongoose.model('Partie', currentGameSchema);
+var finishedGame = mongoose.model('game', finishedGameSchema);
 
 //Creation du serveur
 const http = require('http');
@@ -62,7 +75,8 @@ wsServer.on('request', function(request) {
 
         //Envoi d'un accusé de récéption au client
         console.log("Message reçu du client : " + message.utf8Data + " - Serveur");
-        connection.send("Message bien reçu - Serveur");
+        let json = JSON.stringify({ "message": "Message bien reçu - Serveur" });
+        connection.send(json);
 
         //Gestion du message si c'est un JSON ou non
         let messageIsJSON = true;
@@ -85,15 +99,26 @@ wsServer.on('request', function(request) {
             let mdp = parsedJson.mdp;
             if (messageJSON == "Auth") {
                 addUserIfUnique(login, mdp, connection);
+
+            }
+            if (messageJSON == "Score Update") {
+                updateTopScore(login);
+
             }
 
             if (messageJSON == "En attente d'une partie") {
                 addUserInWaitingList(login, connection);
             }
-            
-            //creer une nouvelle partie
-            newParty(login, login);
 
+            if (messageJSON == "Création d'une nouvelle partie") {
+
+                //creer une nouvelle partie
+                newParty(login, login);
+            }
+
+            if (messageJSON == "Classement") {
+                getClassement(connection);
+            }
         }
     });
 
@@ -106,14 +131,15 @@ wsServer.on('request', function(request) {
 let usersConnectedList = []; //List socket pseudo
 let userWaitingList = []; // Contient les logins utilisateur attendant partie
 let userInGameList = []; //Contient les logins des utilisateurs en partie
-
+let jsonMessageToClient;
 //Connection d'un utilisateur
 //Récupération 
 function connectUser(login, mdp, connection) {
     let userInformations = [login, connection];
     usersConnectedList.push(userInformations);
     console.log("Ajout de " + login + " dans la connected list");
-    connection.send("Utilisateur Connecté");
+    let json = JSON.stringify({ "message": "Utilisateur Connecté" });
+    connection.send(json);
 }
 
 function addUserInWaitingList(login, connection) {
@@ -134,9 +160,7 @@ function pickTwoUsers(userWaitingList) {
 }
 
 
-function searchDuo() {
-
-}
+function searchDuo() {}
 
 function startGame(player1, player2) {}
 
@@ -153,13 +177,9 @@ function handleUserDisconnected() {
 function addUserIfUnique(login, mdp, connection) {
     SomeUser.countDocuments({ pseudo: login }, function(err, count) {
         if (count == 0) {
-            //console.log("UNIQUE");
             addUser(login, mdp, connection);
             connectUser(login, mdp, connection);
         } else {
-            //console.log("NON UNIQUE");
-            console.log(login + " non sauvegardé en BDD. Pseudo non unique.");
-            connection.send("Erreur lors de la sauvegarde en BDD, pseudo déjà utilisé - Serveur");
             connectUser(login, mdp, connection);
         }
     });
@@ -170,15 +190,65 @@ function addUser(login, mdp, connection) {
     let instance = new SomeUser({ pseudo: login, mdp: mdp, nbPartiesJouees: 0, nbPartiesGagnees: 0 });
     instance.save(function(err) {
         if (err) return handleError(err);
-        //console.log(login + " sauvegardé en BDD.");
-        connection.send("Sauvegarde en BDD - Serveur");
+        console.log("addUser");
+        createTopScore(login);
+    });
+}
+
+function createTopScore(login) {
+    let instanceTopScore = new topScore({ pseudo: login, score: 0 });
+    instanceTopScore.save(function(err) {
+        if (err) return handleError(err);
+        console.log("createTopScore")
+    });
+}
+
+function updateTopScore(login) {
+    let score = 0;
+    SomeUser.findOne({ pseudo: login }, 'nbPartiesJouees nbPartiesGagnees', function(err, user) {
+        if (err) return handleError(err);
+        if (user.nbPartiesJouees != 0) {
+            score = user.nbPartiesGagnees / user.nbPartiesJouees * 100;
+        }
+    });
+
+    topScore.findOneAndReplace({ pseudo: login }, { pseudo: login, score: score }, function(err, user) {
+        if (err) return handleError(err);
+    });
+
+    console.log("updateTopScore")
+}
+
+function updateNbPartiesJouees(login) {
+    SomeUser.findOne({ pseudo: login }, 'nbPartiesJouees', function(err, user) {
+        if (err) return handleError(err);
+        user.nbPartiesJouees += 1;
+    });
+    console.log("updateNbPartiesJouees")
+}
+
+
+function updateNbPartiesGagnees(login) {
+    SomeUser.findOne({ pseudo: login }, 'nbPartiesGagnees', function(err, user) {
+        if (err) return handleError(err);
+        user.nbPartiesGagnees += 1;
+    });
+    console.log("updateNbPartiesGagnees")
+}
+
+function getClassement(connection) {
+    topScore.find(function(err, scores) {
+        if (err) return handleError(err);
+        console.log(scores);
+        let json = JSON.stringify({ "message": "Classement chargé", "scores": scores });
+        connection.send(json);
     });
 }
 
 
 //Creer une nouvelle partie
 function newParty(player1, player2) {
-    let newParty = new Party({
+    let newParty = new currentGame({
         p1: player1,
         p2: player2,
         winner: "",
@@ -186,10 +256,16 @@ function newParty(player1, player2) {
     });
 
     //Stocker la parti en base de données
-    try{
+    try {
         newParty.save();
         console.log("\nPartie sauvgarder en BDD\n");
-    }catch(e){
+    } catch (e) {
         console.error(e)
-    };
+    }
+    ;
+}
+
+//Ajout d'une partie
+function addFinishGame(p1, p2, winner) {
+    let instance = new finishedGame({p1: userSchema.pseudo, p2: userSchema.pseudo, winner: none})
 }
