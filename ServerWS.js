@@ -18,7 +18,7 @@ const userSchema = new Schema({
     nbPartiesGagnees: Number
 });
 
-//schéma utilisateur
+//schéma partie en cours
 const currentGameSchema = new Schema({
     pseudo1: String,
     pseudo2: String,
@@ -28,9 +28,9 @@ const currentGameSchema = new Schema({
 });
 
 const finishedGameSchema = new Schema({
-    p1: userSchema.pseudo,
-    p2: userSchema.pseudo,
-    winner: userSchema.pseudo
+    pseudo1: String,
+    pseudo2: String,
+    winner: String
 });
 
 const topScoreSchema = new Schema({
@@ -260,5 +260,5 @@ function newParty(player1, player2) {
 
 //Ajout d'une partie
 function addFinishGame(p1, p2, winner) {
-    let instance = new finishedGame({ p1: userSchema.pseudo, p2: userSchema.pseudo, winner: none })
+    let instance = new finishedGame({ pseudo1: p1, pseudo2: p2, winner: winner })
 }
