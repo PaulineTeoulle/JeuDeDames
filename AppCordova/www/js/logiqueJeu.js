@@ -144,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function() {
          }
      }
 
-    }
+    
 
     function chooseField(field) {
         if (isNextJump == false) {
@@ -399,7 +399,7 @@ document.addEventListener("DOMContentLoaded", function() {
     //crée le plateau de jeu et les piece
     function createFields() {
 
-        console.log("Tour du joueur "+player)
+        console.log("Tour du joueur " + player)
 
 
         for (var row = 0; row < 8; row++) {
