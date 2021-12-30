@@ -30,7 +30,7 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline';
+    <meta content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline';
           
           style-src 'unsafe-inline' 'self';
           media-src *;
@@ -44,6 +44,8 @@
     <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
     <link rel="stylesheet" href="css/index.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
     <script src="cordova.js"></script>
     <script src="js/index.js"></script>
     <script src="js/logiqueJeu.js"></script>
@@ -53,19 +55,54 @@
 
 <body>
 
-    <div id="log">
-        <p>Login :</p>
-        <p><input type="text" id="login" placeholder="Entrer login"></p>
-        <p>Mot de passe :</p>
-        <p><input type="text" id="mdp" placeholder="Entrer mot de passe"></p>
-        <button type="button" id="AuthButton" onclick="authentification()">Se connecter</button>
-        <p id="messageServeur"></p>
-    </div>
+    <section id="log" class="vh-100" style="background-color: #508bfc;">
+        <div  class="container py-5 h-100" >
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+              <div class="card shadow-2-strong" style="border-radius: 1rem;">
+                <div class="card-body p-5 text-center">
+      
+                  <h3 class="mb-5">Connexion</h3>
+      
+                  <div class="form-outline mb-4">
+                    <label class="form-label" for="login">Login :</label>
+                    <input type="email" id="login" class="form-control form-control-lg" />
+                  </div>
+      
+                  <div class="form-outline mb-4">
+                    <label class="form-label" for="mdp">Mot de passe :</label>
+                    <input type="password" id="mdp" class="form-control form-control-lg" />
+                  </div>
+      
+                  <!-- Checkbox -->
+      
+                  <button class="btn btn-primary btn-lg btn-block" type="button" id="AuthButton" onclick="authentification()">Connexion</button>
+                  <p id="messageServeur"></p>
+  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <div id="choix" style="display: none;">
-        <p><a href="#board" id="nGame" onclick="handleNewGame()">Nouvelle partie ➔</a></p>
-        <p><a href="#classement" id="class" onclick="displayClassement()">Classement général ➔</a></p>
-    </div>
+    <section id="choix" id="log" class="vh-100" style="background-color: #508bfc;">
+        <div  class="container py-5 h-100" >
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+              <div class="card shadow-2-strong" style="border-radius: 1rem;">
+                <div class="card-body p-5 text-center">
+      
+                    <p><a href="#board" id="nGame" onclick="handleNewGame()">Nouvelle partie ➔</a></p>
+                    <p><a href="#classement" id="class" onclick="displayClassement()">Classement général ➔</a></p>
+  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    
 
     <div id="classement" style="display: none;">
         <table>
