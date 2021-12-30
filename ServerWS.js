@@ -18,14 +18,32 @@ const userSchema = new Schema({
     nbPartiesGagnees: Number
 });
 
+//schéma utilisateur
+const partySchema = new Schema({
+    p1: {
+        type: String,
+        required: true
+    },
+    p2: {
+        type: String,
+        required: true
+    },
+    winner: String,
+    loser: String
+});
+
+
 const topScoreSchema = new Schema({
     pseudo: String,
     score: Number
-})
+});
 
 //Definition du schéma utilisateur
 var SomeUser = mongoose.model('users', userSchema);
 var topScore = mongoose.model('topscores', topScoreSchema);
+
+//Definition du schéma partie
+let Party = mongoose.model('Partie', partySchema);
 
 //Creation du serveur
 const http = require('http');
@@ -85,6 +103,13 @@ wsServer.on('request', function(request) {
             if (messageJSON == "En attente d'une partie") {
                 addUserInWaitingList(login, connection);
             }
+
+            if (messageJSON == "Création d'une nouvelle partie") {
+
+                //creer une nouvelle partie
+                newParty(login, login);
+            }
+
             if (messageJSON == "Classement") {
                 getClassement(connection);
             }
@@ -212,4 +237,23 @@ function getClassement(connection) {
         let json = JSON.stringify({ "message": "Classement chargé", "scores": scores });
         connection.send(json);
     });
+}
+
+
+//Creer une nouvelle partie
+function newParty(player1, player2) {
+    let newParty = new Party({
+        p1: player1,
+        p2: player2,
+        winner: "",
+        loser: ""
+    });
+
+    //Stocker la parti en base de données
+    try {
+        newParty.save();
+        console.log("\nPartie sauvgarder en BDD\n");
+    } catch (e) {
+        console.error(e)
+    };
 }
