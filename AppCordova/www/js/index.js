@@ -9,7 +9,8 @@ ws.onopen = function() {
 function handleNewGame() {
     let json = JSON.stringify({ "message": "En attente d'une partie", "login": login, "mdp": mdp });
     ws.send(json);
-    displayBoard();
+    displayWaitingRoom();
+    //displayBoard();
 }
 
 function askForClassement() {

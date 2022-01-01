@@ -6,7 +6,13 @@ function displayClassement(object) {
 
 function displayBoard() {
     document.getElementById("choix").style.display = "none";
+    document.getElementById('checkeredLoading').style.display = "none";
     document.getElementById('board').style.display = "block";
+}
+
+function displayWaitingRoom() {
+    document.getElementById("choix").style.display = "none";
+    document.getElementById('checkeredLoading').style.display = "block";
 }
 
 function displayChoix() {

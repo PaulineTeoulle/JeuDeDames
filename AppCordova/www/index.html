@@ -92,8 +92,8 @@
                 <div class="col-12 col-md-8 col-lg-6 col-xl-5">
                     <div class="card shadow-2-strong" style="border-radius: 1rem;">
                         <div class="card-body p-5 text-center">
-                            <button class="btn btn-primary btn-lg btn-block" type="button" id="nGame" onclick="handleNewGame()">Nouvelle partie ➔</button>
-                            <button class="btn btn-primary btn-lg btn-block" type="button" id="class" onclick="displayClassement()">Classement général ➔</button>
+                            <button class="btn btn-primary btn-lg btn-block" type="button" id="nGame" onclick="handleNewGame()">Nouvelle partie</button>
+                            <button class="btn btn-primary btn-lg btn-block" type="button" id="class" onclick="displayClassement()">Classement général</button>
                         </div>
                     </div>
                 </div>
@@ -115,6 +115,20 @@
                 <!--récupérer score base de données-->
             </tr>
         </table>
+    </div>
+
+    <!--WaitingRoom-->
+    <div id="checkeredLoading" style="display: none;">
+      <div classs="container p-5" style="top: 150px;">
+        <div class="row no-gutters">
+          <div class="col-lg-6 col-md-12 m-auto">
+            <div class="alert alert-success fade show text-center" style="top: 200px;">
+              <h2 class="alert-heading">On y est presque!</h2>
+              <h5>Nous cherchons un adversaire de meme niveau que vous...</h5>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="board" style="display: none;">
