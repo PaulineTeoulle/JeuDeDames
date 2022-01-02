@@ -45,6 +45,13 @@ var topScore = mongoose.model('topscores', topScoreSchema);
 var currentGame = mongoose.model('partiesencours', currentGameSchema);
 var finishedGame = mongoose.model('partiesterminees', finishedGameSchema);
 
+
+
+let usersConnectedList = []; //List socket pseudo
+let userWaitingList = []; // Contient les logins utilisateur attendant partie
+let userInGameList = []; //Contient les logins des utilisateurs en partie
+let jsonMessageToClient;
+
 //Creation du serveur
 const http = require('http');
 const server = http.createServer();
@@ -93,21 +100,30 @@ wsServer.on('request', function(request) {
             let mdp = parsedJson.mdp;
             if (messageJSON == "Auth") {
                 addUserIfUnique(login, mdp, connection);
-
-            }
-            if (messageJSON == "Score Update") {
-                updateTopScore(login);
-
-            }
-
-            if (messageJSON == "En attente d'une partie") {
                 addUserInWaitingList(login, connection);
+
             }
 
-            if (messageJSON == "Création d'une nouvelle partie") {
+            if(userWaitingList.length >= 2){
+                
+                if (messageJSON == "Score Update") {
+                    updateTopScore(login);                   
+                }
 
-                //creer une nouvelle partie
-                newParty(login, login);
+                if (messageJSON == "En attente d'une partie") {
+                    addUserInWaitingList(login, connection);
+                }
+
+                if (messageJSON == "Création d'une nouvelle partie") {
+
+                    //creer une nouvelle partie
+                    newParty(login, login);
+                }
+
+            }else{
+                let json = JSON.stringify({ "message": "Go wainting room" });
+                connection.send(json);
+                console.log("Go wainting room")
             }
 
             if (messageJSON == "Classement") {
@@ -122,10 +138,7 @@ wsServer.on('request', function(request) {
     });
 });
 
-let usersConnectedList = []; //List socket pseudo
-let userWaitingList = []; // Contient les logins utilisateur attendant partie
-let userInGameList = []; //Contient les logins des utilisateurs en partie
-let jsonMessageToClient;
+
 //Connection d'un utilisateur
 //Récupération 
 function connectUser(login, mdp, connection) {
