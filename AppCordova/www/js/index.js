@@ -34,6 +34,9 @@ ws.onmessage = function(e) {
         displayChoix();
     } else if (object["message"] == "Classement chargé") {
         displayClassement(object["scores"]);
+    } else if (object["message"] == "Changement de matrice") {
+        updateBoard(object["gameBoard"]);
+        //TODO : ajouter méthode qui récupère l'object et qui draw le board
     }
 };
 

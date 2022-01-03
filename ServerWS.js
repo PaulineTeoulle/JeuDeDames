@@ -74,6 +74,11 @@ wsServer.on('request', function(request) {
                 // addCurrentgame(login, login);
             }
 
+            if (messageJSON == "Changement de matrice") {
+                //TODO : ajouter function qui récupère object et l'ajoute en bdd
+                //TODO : envoyer la nouvelle matrice aux 2 clients
+            }
+
             if (messageJSON == "Classement") {
                 getClassement(connection);
             }
@@ -87,6 +92,8 @@ wsServer.on('request', function(request) {
         console.log("Déconnection d'un client - Serveur");
     });
 });
+
+
 
 let loginInfo;
 let connectionInfo;
@@ -263,12 +270,24 @@ function addCurrentgame(duo) {
         let currentGame = new currentGameModel.CurrentGames({
             pseudo1: pseudo1,
             pseudo2: pseudo2,
-            matrice: []
+            matrice: [
+                [0, 6, 0, 6, 0, 6, 0, 6],
+                [6, 0, 6, 0, 6, 0, 6, 0],
+                [0, 6, 0, 6, 0, 6, 0, 6],
+                [1, 0, 1, 0, 1, 0, 1, 0],
+                [0, 1, 0, 1, 0, 1, 0, 1],
+                [2, 0, 2, 0, 2, 0, 2, 0],
+                [0, 2, 0, 2, 0, 2, 0, 2],
+                [2, 0, 2, 0, 2, 0, 2, 0]
+            ],
+            starter: randomStarter
         });
 
         currentGame.save(function(err) {
+            console.log("ADD CURRENT GAME");
             if (err) return handleError(err);
         });
+
     }
 }
 
@@ -279,4 +298,21 @@ function addFinishGame(p1, p2, winner) {
         pseudo2: p2,
         winner: winner
     })
+}
+
+
+function getGameBoard(duo) {
+    let pseudo1 = duo["pseudo1"][0];
+    let pseudo2 = duo["pseudo2"][0];
+
+    userModel.Users.findOne({ pseudo: login }, 'nbPartiesGagnees', function(err, user) {
+        if (err) return handleError(err);
+        user.nbPartiesGagnees += 1;
+    });
+    currentGameModel.CurrentGames.findOne({ pseudo1: pseudo1, pseudo2: pseudo2 }, 'matrice', function(err, gameBoard) {
+        if (err) return handleError(err);
+        //console.log(gameBoard);
+        let json = JSON.stringify({ "message": "Changement de matrice", "gameBoard": gameBoard });
+        connection.send(json);
+    });
 }
