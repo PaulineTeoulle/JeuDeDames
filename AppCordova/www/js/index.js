@@ -3,7 +3,6 @@ const ws = new WebSocket('ws://127.0.0.1:9898/');
 //Listener d'ouverture de websocket
 ws.onopen = function() {
     console.log("Websocket ouvert - Client");
-
 };
 
 function handleNewGame() {
@@ -37,12 +36,14 @@ ws.onmessage = function(e) {
     } else if (object["message"] == "Changement de matrice") {
         updateBoard(object["gameBoard"]);
         //TODO : ajouter méthode qui récupère l'object et qui draw le board
+    } else if (object["message"] == "Starter") {
+        setStarter(object["starter"]);
     }
 };
 
 let login;
 let mdp;
-
+let starter;
 /*
 Récupération des inputs du client, formattage en JSON et envoi vers le serveur
 */
@@ -60,4 +61,8 @@ function saveScore() {
     if (login != "") {
         ws.send(json);
     }
+}
+
+function setStarter(starterFromServer) {
+    starter = starterFromServer;
 }

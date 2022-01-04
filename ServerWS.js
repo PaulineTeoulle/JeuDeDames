@@ -30,13 +30,13 @@ wsServer.on('request', function(request) {
     const connection = request.accept(null, request.origin);
     console.log("Connection d'un client");
 
-    //Un socket console.log(connection); 
+    //Un socket 
+    //console.log(connection); 
 
     //A la réception d'un message
     connection.on('message', function(message) {
 
-        //Envoi d'un accusé de récéption au client
-        // console.log("Message reçu du client : " + message.utf8Data + " - Serveur");
+        //Envoi d'un accusé de réception au client
         let json = JSON.stringify({ "message": "Message bien reçu - Serveur" });
         connection.send(json);
 
@@ -53,9 +53,9 @@ wsServer.on('request', function(request) {
             //Récupération des données JSON envoyées par le client
             let messageJSON = parsedJson.message;
             let login = parsedJson.login;
-            connectionInfo = connection;
-            loginInfo = login;
             let mdp = parsedJson.mdp;
+
+            let gameBoard = JSON.stringify(parsedJson.gameBoard);
             if (messageJSON == "Auth") {
                 addUserIfUnique(login, mdp, connection);
             }
@@ -65,17 +65,18 @@ wsServer.on('request', function(request) {
 
             if (messageJSON == "En attente d'une partie") {
                 addUserInWaitingList(login, connection);
-                let duo = searchForDuo(userWaitingList, connection);
-                addCurrentgame(duo);
-            }
 
-            if (messageJSON == "Création d'une nouvelle partie") {
-                //creer une nouvelle partie
-                // addCurrentgame(login, login);
+                if (usersWaitingList.length >= 2) {
+                    let player1 = pickRandomUser(usersWaitingList);
+                    let player2 = pickRandomUser(usersWaitingList);
+                    addCurrentgame(player1, player2);
+                }
             }
+            if (messageJSON == "DESSIN") {
 
-            if (messageJSON == "Changement de matrice") {
-                //TODO : ajouter function qui récupère object et l'ajoute en bdd
+                let duo = getDuoFromLogin(login);
+                updateBoardInCurrentGame(duo, gameBoard);
+
                 //TODO : envoyer la nouvelle matrice aux 2 clients
             }
 
@@ -87,96 +88,69 @@ wsServer.on('request', function(request) {
 
     //A la fermeture d'une connection
     connection.on('close', function(reasonCode, description) {
-        removeUserInConnectedList(loginInfo, connectionInfo);
-        removeUserInWaitingList(loginInfo, connectionInfo);
+        //removeUserInConnectedList(loginInfo, connectionInfo);
+        //removeUserInWaitingList(loginInfo, connectionInfo);
         console.log("Déconnection d'un client - Serveur");
     });
 });
 
-
-
-let loginInfo;
-let connectionInfo;
 let usersConnectedList = []; //List socket pseudo
-let userWaitingList = []; // Contient les logins utilisateur attendant partie
-let userInGameList = []; //Contient les logins des utilisateurs en partie
-let jsonMessageToClient;
+let usersWaitingList = []; // Contient les logins utilisateur attendant partie
+let usersInGameList = []; //Contient les logins des utilisateurs en partie
 
 //Connection d'un utilisateur
 //Récupération 
 function connectUser(login, mdp, connection) {
-    let userInformations = [login, connection];
+    let userInformations = { "pseudo": login, "socket": connection };
     usersConnectedList.push(userInformations);
+    console.log(usersConnectedList);
+    getConnexionFromLogin(login);
     let json = JSON.stringify({ "message": "Utilisateur Connecté" });
     connection.send(json);
 }
 
-function addUserInWaitingList(login, connection) {
+function addUserInWaitingList(login) {
     console.log("Ajout de " + login + " dans la waiting list");
-    let userInformations = [login, connection];
-    userWaitingList.push(userInformations);
+    usersWaitingList.push(login);
+    console.log(usersWaitingList);
 }
 
-
-function userIsInWaitingList(login, connection) {
-    let userInformations = [login, connection];
-    let indexOfUser = userWaitingList.indexOf(userInformations);
-    return indexOfUser;
+function pickRandomUser(usersWaitingList) {
+    let index1 = Math.floor(Math.random() * usersWaitingList.length);
+    let user = usersWaitingList[index1];
+    removeUserInWaitingList(index1);
+    return (user);
 }
 
-function searchForDuo(userWaitingList, connection) {
-    if (userWaitingList.length >= 2) {
-        console.log("searchForDuo");
-        let duo = pickTwoUsers(userWaitingList);
-        let pseudo1 = duo["pseudo1"][0];
-        let pseudo2 = duo["pseudo2"][0];
-        //removeUserInWaitingList(pseudo1, connectionInfo);
-        // removeUserInWaitingList(pseudo2, connectionInfo);
-        let json = JSON.stringify({ "message": "Duo trouvé" });
-        connection.send(json);
-        console.log(duo);
-        return duo;
-    }
+function removeUserInWaitingList(index) {
+    usersWaitingList.splice(index, 1);
 }
 
-
-
-function pickTwoUsers(userWaitingList) {
-    let index1 = Math.floor(Math.random() * userWaitingList.length);
-    let pseudo1 = userWaitingList[index1];
-    let index2 = Math.floor(Math.random() * userWaitingList.length);
-    let pseudo2 = userWaitingList[index2];
-    var duo = { "pseudo1": pseudo1, "pseudo2": pseudo2 }
-    return duo;
-}
-
-
-function removeUserInWaitingList(login, connection) {
-    if (userWaitingList.length != 0) {
-        console.log(userWaitingList);
-        console.log("removeUserWaitingList");
+/*function removeUserInWaitingList(login, connection) {
+    if (usersWaitingList.length != 0) {
+        console.log(usersWaitingList);
+        console.log("removeusersWaitingList");
         console.log(login);
 
         let userInformations = [login, connection];
-        let indexOfUser = userWaitingList.indexOf(userInformations);
-        userWaitingList.splice(indexOfUser, 1);
-        console.log(userWaitingList);
+        let indexOfUser = usersWaitingList.indexOf(userInformations);
+        usersWaitingList.splice(indexOfUser, 1);
+        console.log(usersWaitingList);
     }
-}
+}*/
 
-
-function removeUserInConnectedList(login, connection) {
+/*function removeUserInConnectedList(login, connection) {
     if (usersConnectedList.length != 0) {
         console.log(usersConnectedList);
         console.log("usersConnectedList");
         console.log(login);
 
-        let userInformations = [login, connection];
+
         let indexOfUser = usersConnectedList.indexOf(userInformations);
         usersConnectedList.splice(indexOfUser, 1);
         console.log(usersConnectedList);
     }
-}
+}*/
 
 function addUserIfUnique(login, mdp, connection) {
     userModel.Users.countDocuments({ pseudo: login }, function(err, count) {
@@ -241,63 +215,111 @@ function updateNbPartiesGagnees(login) {
     //console.log("updateNbPartiesGagnees")
 }
 
+function updateBoardInCurrentGame(duo, gameBoard) {
+    let player1 = duo[0];
+    let player2 = duo[1];
+
+    currentGameModel.CurrentGames.findOne({
+            $or: [{ pseudo1: player1 }, { pseudo1: player2 }]
+        },
+        function(err, currentGame) {
+            if (err) return handleError(err);
+            currentGame.gameBoard = gameBoard;
+            console.log(currentGame.gameBoard);
+            sendGameBoardToClient(player1, gameBoard);
+            sendGameBoardToClient(player2, gameBoard);
+        });
+}
+
+function sendGameBoardToClient(login, gameBoard) {
+    console.log("Envoi du gameboard à : " + login);
+    let socket = getConnexionFromLogin(login);
+    //console.log(socket);
+    let json = JSON.stringify({ "message": "Changement de matrice", "gameBoard": gameBoard });
+    socket.send(json);
+}
+
+function sendStarterToClient(login, starter) {
+    let socket = getConnexionFromLogin(login);
+    let json = JSON.stringify({ "message": "Starter", "starter": starter });
+    socket.send(json);
+
+}
+
 function getClassement(connection) {
     topScoreModel.TopScores.find(function(err, scores) {
         if (err) return handleError(err);
-        //console.log(scores);
         let json = JSON.stringify({ "message": "Classement chargé", "scores": scores });
         connection.send(json);
     });
 }
 
-
 //Creer une nouvelle partie
-function addCurrentgame(duo) {
-    console.log(duo);
-    if (duo != undefined) {
-        let pseudo1 = duo["pseudo1"][0];
-        let pseudo2 = duo["pseudo2"][0];
+function addCurrentgame(player1, player2) {
+    var randomStarter;
+    let randomStarterInt = Math.floor(Math.random() * 2);
 
-        var randomStarter;
-        let randomStarterInt = Math.floor(Math.random() * 2);
-        console.log(randomStarterInt);
-        if (randomStarterInt == 1) {
-            randomStarter = pseudo1;
-        } else {
-            randomStarter = pseudo2;
-        }
-
-        let currentGame = new currentGameModel.CurrentGames({
-            pseudo1: pseudo1,
-            pseudo2: pseudo2,
-            matrice: [
-                [0, 6, 0, 6, 0, 6, 0, 6],
-                [6, 0, 6, 0, 6, 0, 6, 0],
-                [0, 6, 0, 6, 0, 6, 0, 6],
-                [1, 0, 1, 0, 1, 0, 1, 0],
-                [0, 1, 0, 1, 0, 1, 0, 1],
-                [2, 0, 2, 0, 2, 0, 2, 0],
-                [0, 2, 0, 2, 0, 2, 0, 2],
-                [2, 0, 2, 0, 2, 0, 2, 0]
-            ],
-            starter: randomStarter
-        });
-
-        currentGame.save(function(err) {
-            console.log("ADD CURRENT GAME");
-            if (err) return handleError(err);
-        });
-
+    if (randomStarterInt == 1) {
+        randomStarter = player1;
+    } else {
+        randomStarter = player2;
     }
+
+    let currentGame = new currentGameModel.CurrentGames({
+        pseudo1: player1,
+        pseudo2: player2,
+        gameBoard: [
+            [0, 6, 0, 6, 0, 6, 0, 6],
+            [6, 0, 6, 0, 6, 0, 6, 0],
+            [0, 6, 0, 6, 0, 6, 0, 6],
+            [1, 0, 1, 0, 1, 0, 1, 0],
+            [0, 1, 0, 1, 0, 1, 0, 1],
+            [2, 0, 2, 0, 2, 0, 2, 0],
+            [0, 2, 0, 2, 0, 2, 0, 2],
+            [2, 0, 2, 0, 2, 0, 2, 0]
+        ],
+        starter: randomStarter
+    });
+
+    currentGame.save(function(err) {
+        console.log("ADD CURRENT GAME");
+        let userInformations = {
+            "duo": [
+                player1,
+                player2
+            ]
+        };
+        usersInGameList.push(userInformations);
+        sendStarterToClient(player1, randomStarter);
+        sendStarterToClient(player2, randomStarter);
+        if (err) return handleError(err);
+    });
+
+
+}
+
+function removeCurrentGame(duo) {
+    let pseudo1 = duo["pseudo1"][0];
+    let pseudo2 = duo["pseudo2"][0];
+
+    currentGameModel.CurrentGames.findOneAndRemove({ pseudo1: pseudo1, pseudo2: pseudo2 }, 'matrice', function(err, gameBoard) {
+        if (err) return handleError(err);
+        console.log("REMOVE CURRENT GAME");
+    });
 }
 
 //Ajout d'une partie
-function addFinishGame(p1, p2, winner) {
-    let instance = new finishedGameModel.FinishedGames({
+function addFinishedGame(p1, p2, winner) {
+    let finishedGame = new finishedGameModel.FinishedGames({
         pseudo1: p1,
         pseudo2: p2,
         winner: winner
     })
+
+    finishedGame.save(function(err) {
+        console.log("ADD FINISHED GAME");
+        if (err) return handleError(err);
+    });
 }
 
 
@@ -305,14 +327,34 @@ function getGameBoard(duo) {
     let pseudo1 = duo["pseudo1"][0];
     let pseudo2 = duo["pseudo2"][0];
 
-    userModel.Users.findOne({ pseudo: login }, 'nbPartiesGagnees', function(err, user) {
-        if (err) return handleError(err);
-        user.nbPartiesGagnees += 1;
-    });
-    currentGameModel.CurrentGames.findOne({ pseudo1: pseudo1, pseudo2: pseudo2 }, 'matrice', function(err, gameBoard) {
+    currentGameModel.CurrentGames.findOne({ pseudo1: pseudo1, pseudo2: pseudo2 }, 'gameBoard', function(err, gameBoard) {
         if (err) return handleError(err);
         //console.log(gameBoard);
         let json = JSON.stringify({ "message": "Changement de matrice", "gameBoard": gameBoard });
         connection.send(json);
     });
+}
+
+
+
+function getConnexionFromLogin(login) {
+    let connexion = null;
+    usersConnectedList.forEach(element => {
+        if (element.pseudo == login) {
+            retour = element.socket;
+        }
+    });
+    return connexion;
+}
+
+function getDuoFromLogin(login) {
+    let duo = null;
+    usersInGameList.forEach(duo => {
+        duo["duo"].forEach(player => {
+            if (player == login) {
+                duo = duo["duo"];
+            }
+        });
+    });
+    return duo;
 }
