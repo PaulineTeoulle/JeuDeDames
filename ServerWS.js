@@ -153,7 +153,7 @@ function removeUserInWaitingList(index) {
 }*/
 
 function addUserIfUnique(login, mdp, connection) {
-    userModel.Users.countDocuments({ pseudo: login }, function(err, count) {
+    userModel.Users.countDocuments({ pseudo: login, mdp: mdp }, function(err, count) {
         if (count == 0) {
             addUser(login, mdp, connection);
             connectUser(login, mdp, connection);
@@ -238,10 +238,10 @@ function sendGameBoardToClient(login, gameBoard) {
     socket.send(json);
 }
 
-function sendStarterToClient(login, starter) {
+function sendInfoGameToClient(login, starter, player1, player2) {
     let socket = getConnexionFromLogin(login);
-    let json = JSON.stringify({ "message": "Starter", "starter": starter });
-    //socket.send(json);
+    let json = JSON.stringify({ "message": "GameInfo", "starter": starter, "player1": player1, "player2": player2 });
+    socket.send(json);
 }
 
 function getClassement(connection) {
@@ -287,8 +287,8 @@ function addCurrentgame(player1, player2) {
             ]
         };
         usersInGameList.push(userInformations);
-        sendStarterToClient(player1, randomStarter);
-        sendStarterToClient(player2, randomStarter);
+        sendInfoGameToClient(player1, randomStarter, player1, player2);
+        sendInfoGameToClient(player2, randomStarter, player1, player2);
         if (err) return handleError(err);
     });
 

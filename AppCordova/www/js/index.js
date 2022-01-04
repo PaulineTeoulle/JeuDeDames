@@ -35,14 +35,18 @@ ws.onmessage = function(e) {
     } else if (object["message"] == "Changement de matrice") {
         updateBoard(object["gameBoard"]);
         //TODO : ajouter méthode qui récupère l'object et qui draw le board
-    } else if (object["message"] == "Starter") {
+    } else if (object["message"] == "GameInfo") {
         setStarter(object["starter"]);
+        setPlayer("player1", object["player1"]);
+        setPlayer("player2", object["player2"]);
     }
 };
 
 let login;
 let mdp;
-let starter;
+let whitePlayer;
+let player1;
+let player2;
 /*
 Récupération des inputs du client, formattage en JSON et envoi vers le serveur
 */
@@ -62,6 +66,14 @@ function saveScore() {
     }
 }
 
-function setStarter(starterFromServer) {
-    starter = starterFromServer;
+function setStarter(starter) {
+    whitePlayer = starter;
+}
+
+function setPlayer(player, playerInfo) {
+    if (player == "player1") {
+        player1 = playerInfo;
+    } else if (player == "player2") {
+        player2 = playerInfo;
+    }
 }
