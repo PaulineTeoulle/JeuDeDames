@@ -21,7 +21,6 @@ Listener des messages entrants
 Selon le message du serveur que l'on vient de recevoir, on fait un affichage
 */
 ws.onmessage = function(e) {
-    document.getElementById("messageServeur").innerHTML = e.data;
     //console.log(e.data);
     var object = JSON.parse(e.data);
     console.log(object["message"]);

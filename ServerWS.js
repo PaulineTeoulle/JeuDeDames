@@ -232,7 +232,6 @@ function updateBoardInCurrentGame(duo, gameBoard) {
 }
 
 function sendGameBoardToClient(login, gameBoard) {
-    console.log("Envoi du gameboard à : " + login);
     let socket = getConnexionFromLogin(login);
     //console.log(socket);
     let json = JSON.stringify({ "message": "Changement de matrice", "gameBoard": gameBoard });
@@ -242,8 +241,7 @@ function sendGameBoardToClient(login, gameBoard) {
 function sendStarterToClient(login, starter) {
     let socket = getConnexionFromLogin(login);
     let json = JSON.stringify({ "message": "Starter", "starter": starter });
-    socket.send(json);
-
+    //socket.send(json);
 }
 
 function getClassement(connection) {
@@ -282,7 +280,6 @@ function addCurrentgame(player1, player2) {
     });
 
     currentGame.save(function(err) {
-        console.log("ADD CURRENT GAME");
         let userInformations = {
             "duo": [
                 player1,
@@ -341,20 +338,20 @@ function getConnexionFromLogin(login) {
     let connexion = null;
     usersConnectedList.forEach(element => {
         if (element.pseudo == login) {
-            retour = element.socket;
+            connexion = element.socket;
         }
     });
     return connexion;
 }
 
 function getDuoFromLogin(login) {
-    let duo = null;
+    let newDuo = null;
     usersInGameList.forEach(duo => {
         duo["duo"].forEach(player => {
             if (player == login) {
-                duo = duo["duo"];
+                newDuo = duo["duo"];
             }
         });
     });
-    return duo;
+    return newDuo;
 }
