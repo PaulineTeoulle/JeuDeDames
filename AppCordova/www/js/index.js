@@ -36,9 +36,9 @@ ws.onmessage = function(e) {
         updateBoard(object["gameBoard"]);
         //TODO : ajouter méthode qui récupère l'object et qui draw le board
     } else if (object["message"] == "GameInfo") {
-        setStarter(object["starter"]);
-        setPlayer("player1", object["player1"]);
-        setPlayer("player2", object["player2"]);
+        //setStarter(object["starter"]);
+        //setPlayer("player1", object["player1"]);
+        //setPlayer("player2", object["player2"]);
     }
 };
 
@@ -70,10 +70,10 @@ function setStarter(starter) {
     whitePlayer = starter;
 }
 
-function setPlayer(player, playerInfo) {
+function setPlayer(player, pseudo) {
     if (player == "player1") {
-        player1 = playerInfo;
+        player1 = { "pseudo": pseudo, "number": 1 };
     } else if (player == "player2") {
-        player2 = playerInfo;
+        player2 = { "pseudo": pseudo, "number": 2 };;
     }
 }

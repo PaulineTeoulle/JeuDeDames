@@ -40,6 +40,7 @@ wsServer.on('request', function(request) {
         let json = JSON.stringify({ "message": "Message bien reçu - Serveur" });
         connection.send(json);
 
+        console.log(message);
         //Gestion du message si c'est un JSON ou non
         let messageIsJSON = true;
         try {
@@ -65,7 +66,7 @@ wsServer.on('request', function(request) {
 
             if (messageJSON == "En attente d'une partie") {
                 addUserInWaitingList(login, connection);
-
+                console.log(usersWaitingList);
                 if (usersWaitingList.length >= 2) {
                     let player1 = pickRandomUser(usersWaitingList);
                     let player2 = pickRandomUser(usersWaitingList);
@@ -103,7 +104,8 @@ let usersInGameList = []; //Contient les logins des utilisateurs en partie
 function connectUser(login, mdp, connection) {
     let userInformations = { "pseudo": login, "socket": connection };
     usersConnectedList.push(userInformations);
-    console.log(usersConnectedList);
+    //updateConnectedUser(login);
+    //getConnectedUser(login);
     getConnexionFromLogin(login);
     let json = JSON.stringify({ "message": "Utilisateur Connecté" });
     connection.send(json);
@@ -156,6 +158,7 @@ function addUserIfUnique(login, mdp, connection) {
     userModel.Users.countDocuments({ pseudo: login, mdp: mdp }, function(err, count) {
         if (count == 0) {
             addUser(login, mdp, connection);
+            //getConnectedUser(login);
             connectUser(login, mdp, connection);
         } else {
             connectUser(login, mdp, connection);
@@ -165,12 +168,25 @@ function addUserIfUnique(login, mdp, connection) {
 
 //Ajout d'un utilisateur
 function addUser(login, mdp, connection) {
-
-    let instance = new userModel.Users({ pseudo: login, mdp: mdp, nbPartiesJouees: 0, nbPartiesGagnees: 0 });
+    let instance = new userModel.Users({ pseudo: login, mdp: mdp, nbPartiesJouees: 0, nbPartiesGagnees: 0, estConnecte: false });
     instance.save(function(err) {
         if (err) return handleError(err);
         //console.log("addUser");
         createTopScore(login);
+    });
+}
+
+function updateConnectedUser(login) {
+    userModel.Users.findOne({ pseudo: login }, 'nbPartiesJouees nbPartiesGagnees', function(err, user) {
+        if (err) return handleError(err);
+        user.estConnecte = true;
+    });
+}
+
+function getConnectedUser(login) {
+    userModel.Users.findOne({ pseudo: login }, function(err, user) {
+        if (err) return handleError(err);
+        console.log(user);
     });
 }
 
@@ -233,7 +249,7 @@ function updateBoardInCurrentGame(duo, gameBoard) {
 
 function sendGameBoardToClient(login, gameBoard) {
     let socket = getConnexionFromLogin(login);
-    //console.log(socket);
+    console.log(socket);
     let json = JSON.stringify({ "message": "Changement de matrice", "gameBoard": gameBoard });
     socket.send(json);
 }
@@ -287,8 +303,8 @@ function addCurrentgame(player1, player2) {
             ]
         };
         usersInGameList.push(userInformations);
-        sendInfoGameToClient(player1, randomStarter, player1, player2);
-        sendInfoGameToClient(player2, randomStarter, player1, player2);
+        //sendInfoGameToClient(player1, randomStarter, player1, player2);
+        //sendInfoGameToClient(player2, randomStarter, player1, player2);
         if (err) return handleError(err);
     });
 
