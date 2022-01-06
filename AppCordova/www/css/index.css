@@ -71,9 +71,13 @@ h1 {
 }
 
 #board {
-    width: 640px;
-    height: 640px;
-    margin: auto;
+    width: 650px;
+    height: 650px;
+    margin-top: 60px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+    border-radius: 5px;
 }
 
 
