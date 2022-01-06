@@ -37,7 +37,7 @@ wsServer.on('request', function(request) {
     connection.on('message', function(message) {
 
         //Envoi d'un accusé de réception au client
-        let json = JSON.stringify({ "message": "Message bien reçu - Serveur" });
+        let json = JSON.stringify({ "action": "Message bien reçu - Serveur" });
         connection.send(json);
 
         console.log(message);
@@ -52,19 +52,19 @@ wsServer.on('request', function(request) {
 
         if (messageIsJSON) {
             //Récupération des données JSON envoyées par le client
-            let messageJSON = parsedJson.message;
-            let login = parsedJson.login;
-            let mdp = parsedJson.mdp;
+            let action = parsedJson.action;
+            let login = parsedJson.data.login;
+            let mdp = parsedJson.data.mdp;
 
-            let gameBoard = JSON.stringify(parsedJson.gameBoard);
-            if (messageJSON == "User Authentication") {
+            let gameBoard = JSON.stringify(parsedJson.data.gameBoard);
+            if (action == "User Authentication") {
                 addUserIfUnique(login, mdp, connection);
             }
-            if (messageJSON == "Score Update") {
+            if (action == "Score Update") {
                 updateTopScore(login);
             }
 
-            if (messageJSON == "Waiting for a game") {
+            if (action == "Waiting for a game") {
                 addUserInWaitingList(login, connection);
                 console.log(usersWaitingList);
                 if (usersWaitingList.length >= 2) {
@@ -73,7 +73,7 @@ wsServer.on('request', function(request) {
                     addCurrentgame(player1, player2);
                 }
             }
-            if (messageJSON == "Update GameBoard") {
+            if (action == "Update GameBoard") {
 
                 let duo = getDuoFromLogin(login);
                 updateBoardInCurrentGame(duo, gameBoard);
@@ -81,11 +81,11 @@ wsServer.on('request', function(request) {
                 //TODO : envoyer la nouvelle matrice aux 2 clients
             }
 
-            if (messageJSON == "Get Score") {
-                getScore(connection);
+            if (action == "Get Score") {
+                getScore(login);
             }
 
-            if (messageJSON == "End Game") {
+            if (action == "End Game") {
                 let player1 = JSON.stringify(parsedJson.player1);
                 let player2 = JSON.stringify(parsedJson.player2);
                 let winner = JSON.stringify(parsedJson.winner);
@@ -123,7 +123,7 @@ function connectUser(login, mdp, connection) {
     //updateConnectedUser(login);
     //getConnectedUser(login);
     getConnexionFromLogin(login);
-    let json = JSON.stringify({ "message": "User connected" });
+    let json = JSON.stringify({ "action": "User connected" });
     connection.send(json);
 }
 
@@ -262,22 +262,23 @@ function updateBoardInCurrentGame(duo, gameBoard) {
 
 function sendGameBoardToClient(login, gameBoard) {
     let socket = getConnexionFromLogin(login);
-    console.log(socket);
-    let json = JSON.stringify({ "message": "Update GameBoard", "gameBoard": gameBoard });
+    let json = JSON.stringify({ "action": "Update GameBoard", "data": { "gameBoard": gameBoard } });
     socket.send(json);
 }
 
 function sendInfoGameToClient(login, starter, player1, player2) {
     let socket = getConnexionFromLogin(login);
-    let json = JSON.stringify({ "message": "Get GameInfo", "starter": starter, "player1": player1, "player2": player2 });
+    let json = JSON.stringify({ "action": "Get GameInfo", "data": { "starter": starter, "player1": player1, "player2": player2 } });
     socket.send(json);
 }
 
-function getScore(connection) {
+function getScore(login) {
+
+    let socket = getConnexionFromLogin(login);
     topScoreModel.TopScores.find(function(err, scores) {
         if (err) return handleError(err);
-        let json = JSON.stringify({ "message": "Get Score", "scores": scores });
-        connection.send(json);
+        let json = JSON.stringify({ "action": "Get Score", "data": { "scores": scores } });
+        socket.send(json);
     });
 }
 
@@ -353,7 +354,7 @@ function getGameBoard(duo) {
     currentGameModel.CurrentGames.findOne({ pseudo1: pseudo1, pseudo2: pseudo2 }, 'gameBoard', function(err, gameBoard) {
         if (err) return handleError(err);
         //console.log(gameBoard);
-        let json = JSON.stringify({ "message": "Update GameBoard", "gameBoard": gameBoard });
+        let json = JSON.stringify({ "action": "Update GameBoard", "data": { "gameBoard": gameBoard } });
         connection.send(json);
     });
 }
