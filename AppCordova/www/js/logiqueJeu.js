@@ -1,10 +1,10 @@
   /*
-                                                                                                                                                                                                                                                                                                                                                                                    0: videClair
-                                                                                                                                                                                                                                                                                                                                                                                    1: videSombre
-                                                                                                                                                                                                                                                                                                                                                                                    2: Joueur1 pieceBlanche
-                                                                                                                                                                                                                                                                                                                                                                                    3: reineBlanche
-                                                                                                                                                                                                                                                                                                                                                                                    6: joueur2 pieceNoire
-                                                                                                                                                                                                                                                                                                                                                                                    7: reineNoire */
+                                                                                                                                                                                                                                                                                                                                                                                      0: videClair
+                                                                                                                                                                                                                                                                                                                                                                                      1: videSombre
+                                                                                                                                                                                                                                                                                                                                                                                      2: Joueur1 pieceBlanche
+                                                                                                                                                                                                                                                                                                                                                                                      3: reineBlanche
+                                                                                                                                                                                                                                                                                                                                                                                      6: joueur2 pieceNoire
+                                                                                                                                                                                                                                                                                                                                                                                      7: reineNoire */
   var gameBoard = [
       [0, 6, 0, 6, 0, 6, 0, 6],
       [6, 0, 6, 0, 6, 0, 6, 0],
@@ -337,7 +337,7 @@
       }
   }
 
-  //dessiner les pieces
+  //Update GameBoarder les pieces
   function draw() {
       nbCoup++;
       console.log("Matrice : " + gameBoard);
@@ -351,7 +351,7 @@
           }
       }
 
-      let json = JSON.stringify({ "message": "DESSIN", "login": login, "gameBoard": gameBoard });
+      let json = JSON.stringify({ "message": "Update GameBoard", "login": login, "gameBoard": gameBoard });
       ws.send(json);
       //TODO : Envoyer matrice
   }

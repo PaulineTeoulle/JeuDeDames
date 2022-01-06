@@ -57,14 +57,14 @@ wsServer.on('request', function(request) {
             let mdp = parsedJson.mdp;
 
             let gameBoard = JSON.stringify(parsedJson.gameBoard);
-            if (messageJSON == "Auth") {
+            if (messageJSON == "User Authentication") {
                 addUserIfUnique(login, mdp, connection);
             }
             if (messageJSON == "Score Update") {
                 updateTopScore(login);
             }
 
-            if (messageJSON == "En attente d'une partie") {
+            if (messageJSON == "Waiting for a game") {
                 addUserInWaitingList(login, connection);
                 console.log(usersWaitingList);
                 if (usersWaitingList.length >= 2) {
@@ -73,7 +73,7 @@ wsServer.on('request', function(request) {
                     addCurrentgame(player1, player2);
                 }
             }
-            if (messageJSON == "DESSIN") {
+            if (messageJSON == "Update GameBoard") {
 
                 let duo = getDuoFromLogin(login);
                 updateBoardInCurrentGame(duo, gameBoard);
@@ -81,8 +81,8 @@ wsServer.on('request', function(request) {
                 //TODO : envoyer la nouvelle matrice aux 2 clients
             }
 
-            if (messageJSON == "Classement") {
-                getClassement(connection);
+            if (messageJSON == "Get Score") {
+                getScore(connection);
             }
         }
     });
@@ -107,7 +107,7 @@ function connectUser(login, mdp, connection) {
     //updateConnectedUser(login);
     //getConnectedUser(login);
     getConnexionFromLogin(login);
-    let json = JSON.stringify({ "message": "Utilisateur Connecté" });
+    let json = JSON.stringify({ "message": "User connected" });
     connection.send(json);
 }
 
@@ -250,20 +250,20 @@ function updateBoardInCurrentGame(duo, gameBoard) {
 function sendGameBoardToClient(login, gameBoard) {
     let socket = getConnexionFromLogin(login);
     console.log(socket);
-    let json = JSON.stringify({ "message": "Changement de matrice", "gameBoard": gameBoard });
+    let json = JSON.stringify({ "message": "Update GameBoard", "gameBoard": gameBoard });
     socket.send(json);
 }
 
 function sendInfoGameToClient(login, starter, player1, player2) {
     let socket = getConnexionFromLogin(login);
-    let json = JSON.stringify({ "message": "GameInfo", "starter": starter, "player1": player1, "player2": player2 });
+    let json = JSON.stringify({ "message": "Get GameInfo", "starter": starter, "player1": player1, "player2": player2 });
     socket.send(json);
 }
 
-function getClassement(connection) {
+function getScore(connection) {
     topScoreModel.TopScores.find(function(err, scores) {
         if (err) return handleError(err);
-        let json = JSON.stringify({ "message": "Classement chargé", "scores": scores });
+        let json = JSON.stringify({ "message": "Get Score", "scores": scores });
         connection.send(json);
     });
 }
@@ -343,7 +343,7 @@ function getGameBoard(duo) {
     currentGameModel.CurrentGames.findOne({ pseudo1: pseudo1, pseudo2: pseudo2 }, 'gameBoard', function(err, gameBoard) {
         if (err) return handleError(err);
         //console.log(gameBoard);
-        let json = JSON.stringify({ "message": "Changement de matrice", "gameBoard": gameBoard });
+        let json = JSON.stringify({ "message": "Update GameBoard", "gameBoard": gameBoard });
         connection.send(json);
     });
 }

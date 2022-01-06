@@ -6,13 +6,13 @@ ws.onopen = function() {
 };
 
 function handleNewGame() {
-    let json = JSON.stringify({ "message": "En attente d'une partie", "login": login, "mdp": mdp });
+    let json = JSON.stringify({ "message": "Waiting for a game", "login": login, "mdp": mdp });
     ws.send(json);
     displayBoard();
 }
 
-function askForClassement() {
-    let json = JSON.stringify({ "message": "Classement" });
+function askForScore() {
+    let json = JSON.stringify({ "message": "Get Score" });
     ws.send(json);
 }
 
@@ -24,18 +24,15 @@ ws.onmessage = function(e) {
     //console.log(e.data);
     var object = JSON.parse(e.data);
     console.log(object["message"]);
-    //Cas où l'authentification est validée par le serveur
-    if (object["message"] == "Authentification valide - Serveur") {
-        document.getElementById("messageServeur").style.color = "green";
-        document.getElementById("messageServeur").innerHTML = e.data;
-    } else if (object["message"] == "Utilisateur Connecté") {
-        displayChoix();
-    } else if (object["message"] == "Classement chargé") {
-        displayClassement(object["scores"]);
-    } else if (object["message"] == "Changement de matrice") {
+    //Cas où l'User Authenticationentification est validée par le serveur
+    if (object["message"] == "User connected") {
+        displayChoice();
+    } else if (object["message"] == "Get Score") {
+        displayScore(object["scores"]);
+    } else if (object["message"] == "Update GameBoard") {
         updateBoard(object["gameBoard"]);
         //TODO : ajouter méthode qui récupère l'object et qui draw le board
-    } else if (object["message"] == "GameInfo") {
+    } else if (object["message"] == "Get GameInfo") {
         //setStarter(object["starter"]);
         //setPlayer("player1", object["player1"]);
         //setPlayer("player2", object["player2"]);
@@ -53,7 +50,7 @@ Récupération des inputs du client, formattage en JSON et envoi vers le serveur
 function authentification() {
     login = document.getElementById("login").value;
     mdp = document.getElementById("mdp").value;
-    let json = JSON.stringify({ "message": "Auth", "login": login, "mdp": mdp });
+    let json = JSON.stringify({ "message": "User Authentication", "login": login, "mdp": mdp });
     if (login != "" && mdp != "") {
         ws.send(json);
     }
