@@ -84,6 +84,16 @@ wsServer.on('request', function(request) {
             if (messageJSON == "Get Score") {
                 getScore(connection);
             }
+
+            if (messageJSON == "End Game") {
+                let player1 = JSON.stringify(parsedJson.player1);
+                let player2 = JSON.stringify(parsedJson.player2);
+                let winner = JSON.stringify(parsedJson.winner);
+                addFinishedGame(player1, player2, winner);
+                removeCurrentGame(player1, player2);
+                updateScores(player1, player2, winner);
+
+            }
         }
     });
 
@@ -94,6 +104,12 @@ wsServer.on('request', function(request) {
         console.log("Déconnection d'un client - Serveur");
     });
 });
+
+function updateScores(player1, player2, winner) {
+    updateNbPartiesJouees(player1);
+    updateNbPartiesJouees(player2);
+    updateNbPartiesGagnees(winner);
+}
 
 let usersConnectedList = []; //List socket pseudo
 let usersWaitingList = []; // Contient les logins utilisateur attendant partie
@@ -171,7 +187,6 @@ function addUser(login, mdp, connection) {
     let instance = new userModel.Users({ pseudo: login, mdp: mdp, nbPartiesJouees: 0, nbPartiesGagnees: 0, estConnecte: false });
     instance.save(function(err) {
         if (err) return handleError(err);
-        //console.log("addUser");
         createTopScore(login);
     });
 }
@@ -194,7 +209,6 @@ function createTopScore(login) {
     let instanceTopScore = new topScoreModel.TopScores({ pseudo: login, score: 0 });
     instanceTopScore.save(function(err) {
         if (err) return handleError(err);
-        //console.log("createTopScore")
     });
 }
 
@@ -207,11 +221,10 @@ function updateTopScore(login) {
         }
     });
 
-    topScoreModel.TopScores.findOneAndReplace({ pseudo: login }, { pseudo: login, score: score }, function(err, user) {
+    topScoreModel.TopScores.findOneAndReplace({ pseudo: login }, function(err, user) {
         if (err) return handleError(err);
+        user.score = score;
     });
-
-    //console.log("updateTopScore")
 }
 
 function updateNbPartiesJouees(login) {
@@ -268,7 +281,6 @@ function getScore(connection) {
     });
 }
 
-//Creer une nouvelle partie
 function addCurrentgame(player1, player2) {
     var randomStarter;
     let randomStarterInt = Math.floor(Math.random() * 2);
@@ -311,21 +323,20 @@ function addCurrentgame(player1, player2) {
 
 }
 
-function removeCurrentGame(duo) {
-    let pseudo1 = duo["pseudo1"][0];
-    let pseudo2 = duo["pseudo2"][0];
-
-    currentGameModel.CurrentGames.findOneAndRemove({ pseudo1: pseudo1, pseudo2: pseudo2 }, 'matrice', function(err, gameBoard) {
-        if (err) return handleError(err);
-        console.log("REMOVE CURRENT GAME");
-    });
+function removeCurrentGame(player1, player2) {
+    currentGameModel.CurrentGames.findOneAndRemove({
+            $or: [{ pseudo1: player1 }, { pseudo1: player2 }]
+        },
+        function(err, currentGame) {
+            if (err) return handleError(err);
+            console.log("REMOVE CURRENT GAME");
+        });
 }
 
-//Ajout d'une partie
-function addFinishedGame(p1, p2, winner) {
+function addFinishedGame(player1, player2, winner) {
     let finishedGame = new finishedGameModel.FinishedGames({
-        pseudo1: p1,
-        pseudo2: p2,
+        pseudo1: player1,
+        pseudo2: player2,
         winner: winner
     })
 
@@ -334,7 +345,6 @@ function addFinishedGame(p1, p2, winner) {
         if (err) return handleError(err);
     });
 }
-
 
 function getGameBoard(duo) {
     let pseudo1 = duo["pseudo1"][0];
