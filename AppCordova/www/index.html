@@ -53,30 +53,29 @@
     <title>Jeu De Dames</title>
 </head>
 
-<body>
+<body style="background-color: #262421;">
 
-    <section id="log" class="vh-100" style="background-color: #508bfc;">
+    <section id="log" class="vh-100" style="background-color: #E8D0AA;">
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                    <div class="card shadow-2-strong" style="border-radius: 1rem;">
+                    <div class="card shadow-2-strong" style="font-size: large; color: white; background-color: #A67D5D; border-radius: 1rem;">
                         <div class="card-body p-5 text-center">
 
-                            <h3 class="mb-5">Connexion</h3>
-
+                            <h2 class="mb-1">Bonjour !</h2>
+                            <p style="font-size: large; color: white;" class="mb-1" >Connectez-vous pour défier les meilleurs joueurs de dames.</p>
+                            <br/>
                             <div class="form-outline mb-4">
-                                <label class="form-label" for="login">Login :</label>
-                                <input type="email" id="login" class="form-control form-control-lg" />
+                                <input style="background-color: #E8D0AA;" placeholder="Entrer votre login" type="email" id="login" class="form-control form-control-lg" />
                             </div>
 
                             <div class="form-outline mb-4">
-                                <label class="form-label" for="mdp">Mot de passe :</label>
-                                <input type="password" id="mdp" class="form-control form-control-lg" />
+                                <input style="background-color: #E8D0AA;" placeholder="Entrer votre mot de passe" type="password" id="mdp" class="form-control form-control-lg" />
                             </div>
 
                             <!-- Checkbox -->
 
-                            <button class="btn btn-primary btn-lg btn-block" type="button" id="AuthButton" onclick="authentification()">Connexion</button>
+                            <button class="btn btn-dark btn-lg btn-block" type="button" id="AuthButton" onclick="authentification()">Se connecter</button>
                             <p id="messageServeur"></p>
 
                         </div>
@@ -86,14 +85,14 @@
         </div>
     </section>
 
-    <section id="choix" id="log" class="vh-100" style="background-color: #508bfc;">
+    <section  id="choix" id="log" class="vh-100" style=" display: none;background-color: #E8D0AA;">
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                    <div class="card shadow-2-strong" style="border-radius: 1rem;">
+                    <div class="card shadow-2-strong" style="font-size: large; color: white; background-color: #A67D5D; border-radius: 1rem;">
                         <div class="card-body p-5 text-center">
-                            <button class="btn btn-primary btn-lg btn-block" type="button" id="nGame" onclick="handleNewGame()">Nouvelle partie</button>
-                            <button class="btn btn-primary btn-lg btn-block" type="button" id="class" onclick="displayClassement()">Classement général</button>
+                            <button style="margin:5px; width: -webkit-fill-available;" class="btn btn-dark btn-lg btn-block" type="button" id="nGame" onclick="handleNewGame()">Nouvelle partie</button>
+                            <button style="margin:5px; width: -webkit-fill-available;" class="btn btn-dark btn-lg btn-block" type="button" id="class" onclick="displayClassement()">Classement général</button>
                         </div>
                     </div>
                 </div>
