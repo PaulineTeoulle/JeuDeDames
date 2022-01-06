@@ -1,10 +1,10 @@
   /*
-                                                                                                                                                                                                                                                                                                                                                                                                                      0: videClair
-                                                                                                                                                                                                                                                                                                                                                                                                                      1: videSombre
-                                                                                                                                                                                                                                                                                                                                                                                                                      2: Joueur1 pieceBlanche
-                                                                                                                                                                                                                                                                                                                                                                                                                      3: reineBlanche
-                                                                                                                                                                                                                                                                                                                                                                                                                      6: joueur2 pieceNoire
-                                                                                                                                                                                                                                                                                                                                                                                                                      7: reineNoire */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0: videClair
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      1: videSombre
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      2: Joueur1 pieceBlanche
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      3: reineBlanche
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      6: joueur2 pieceNoire
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      7: reineNoire */
   var gameBoard = [
       [0, 6, 0, 6, 0, 6, 0, 6],
       [6, 0, 6, 0, 6, 0, 6, 0],
@@ -18,15 +18,11 @@
 
   var boardCode = "";
   var chosenField = "none";
-  var player = 1;
+  var turnOfPlayer;
   var win = false;
   var isNextJump = false;
   var nbCoup = 0;
 
-  document.addEventListener("DOMContentLoaded", function() {
-      console.log(gameBoard);
-      createFields();
-  })
 
   function doesFieldExists(field) {
       if (field.row < 8 && field.col < 8 && field.row >= 0 && field.col >= 0) return true;
@@ -45,33 +41,59 @@
 
   //verifier si on peut jouer le carreau selectionne
   function canChooseField(field) {
-
-      console.log(field);
-      console.log(gameBoard);
-
-      console.log(getRow(field));
-      console.log(getCol(field));
-      if (player == 1 &&
+      if (turnOfPlayer.number == 1 &&
           (gameBoard[getRow(field)][getCol(field)] == 2 ||
               gameBoard[getRow(field)][getCol(field)] == 3)) {
           return true;
-      } else if (player == 2 &&
+      } else if (turnOfPlayer.number == 2 &&
           (gameBoard[getRow(field)][getCol(field)] == 6 ||
               gameBoard[getRow(field)][getCol(field)] == 7)) {
           return true;
       }
   }
 
+
   //changer de joueur aprés son tour
   function changePlayer() {
-      if (player == 1) {
-          player = 2;
-      } else {
-          player = 1;
+      console.log("Ancien jouer");
+      console.log(turnOfPlayer);
+
+      if (turnOfPlayer.number == 1) {
+          if (player1.number = 2) {
+              let newTurnOfPlay = {
+                  "pseudo": player1.pseudo,
+                  "number": 2
+              }
+              turnOfPlayer = newTurnOfPlay;
+          } else if (player2.number = 2) {
+              let newTurnOfPlay = {
+                  "pseudo": player2.pseudo,
+                  "number": 2
+              }
+              turnOfPlayer = newTurnOfPlay;
+          }
+      } else if (turnOfPlayer.number == 2) {
+          if (player1.number = 1) {
+              let newTurnOfPlay = {
+                  "pseudo": player1.pseudo,
+                  "number": 1
+              }
+              turnOfPlayer = newTurnOfPlay;
+          } else if (player2.number = 1) {
+              let newTurnOfPlay = {
+                  "pseudo": player2.pseudo,
+                  "number": 1
+              }
+              turnOfPlayer = newTurnOfPlay;
+          }
       }
 
-      if (win == false)
-          console.log("Tour du joueur " + player);
+      console.log("Nouveau jouer");
+      console.log(turnOfPlayer);
+      if (win == false) {
+          let json = JSON.stringify({ "action": "Set TurnOf", "data": { "login": login, "turnOfPlayer": turnOfPlayer } });
+          ws.send(json);
+      }
   }
 
   //changer la couleur d'element selectionner
@@ -108,22 +130,22 @@
       var chosenRow = getRow(chosenField);
       var chosenCol = getCol(chosenField);
 
-      console.log("[" + (row + 1) + ", " + (col + 1) + "]");
+      //console.log("[" + (row + 1) + ", " + (col + 1) + "]");
 
-      if (chosenField != "none" && player == 1 && gameBoard[chosenRow][chosenCol] == 3 &&
-          (Math.abs(row - chosenRow) == Math.abs(col - chosenCol)) && gameBoard[row][col] == 1) {
+      if (chosenField != "none" && turnOfPlayer.number == 1 && gameBoard[chosenRow][chosenCol] == 3 &&
+          (Math.abs(row - chosenRow) == Math.abs(col - chosenCol)) && gameBoard[row][col] == 1 && isClientTurnOf()) {
           return true;
       } else
-      if (chosenField != "none" && player == 2 && gameBoard[chosenRow][chosenCol] == 7 &&
-          (Math.abs(row - chosenRow) == Math.abs(col - chosenCol)) && gameBoard[row][col] == 1) {
+      if (chosenField != "none" && turnOfPlayer.number == 2 && gameBoard[chosenRow][chosenCol] == 7 &&
+          (Math.abs(row - chosenRow) == Math.abs(col - chosenCol)) && gameBoard[row][col] == 1 && isClientTurnOf()) {
           return true;
       }
-      if (chosenField != "none" && player == 1 && gameBoard[chosenRow][chosenCol] == 2 &&
-          (row - chosenRow == -1) && Math.abs(col - chosenCol) == 1 && gameBoard[row][col] == 1) {
+      if (chosenField != "none" && turnOfPlayer.number == 1 && gameBoard[chosenRow][chosenCol] == 2 &&
+          (row - chosenRow == -1) && Math.abs(col - chosenCol) == 1 && gameBoard[row][col] == 1 && isClientTurnOf()) {
           return true;
       } else
-      if (chosenField != "none" && player == 2 && gameBoard[chosenRow][chosenCol] == 6 &&
-          (row - chosenRow == 1) && Math.abs(col - chosenCol) == 1 && gameBoard[row][col] == 1) {
+      if (chosenField != "none" && turnOfPlayer.number == 2 && gameBoard[chosenRow][chosenCol] == 6 &&
+          (row - chosenRow == 1) && Math.abs(col - chosenCol) == 1 && gameBoard[row][col] == 1 && isClientTurnOf()) {
           return true;
       }
   }
@@ -147,7 +169,7 @@
       var isJumpPossible = false;
       for (var row = 0; row < 8; row++) {
           for (var col = 0; col < 8; col++) {
-              if (player == 1 && gameBoard[row][col] == 2 || gameBoard[row][col] == 3) {
+              if (turnOfPlayer.number == 1 && gameBoard[row][col] == 2 || gameBoard[row][col] == 3) {
                   if (doesFieldExists(row + 2, col + 2) && gameBoard[row + 2][col + 2] == 1 &&
                       (gameBoard[row + 1][col + 1] == 6 || gameBoard[row + 1][col + 1] == 7)) {
                       isJumpPossible = true;
@@ -165,7 +187,7 @@
                       isJumpPossible = true;
                   }
               }
-              if (player == 2 && gameBoard[row][col] == 6 || gameBoard[row][col] == 7) {
+              if (turnOfPlayer.number == 2 && gameBoard[row][col] == 6 || gameBoard[row][col] == 7) {
                   if (doesFieldExists(row + 2, col + 2) && gameBoard[row + 2][col + 2] == 1 &&
                       (gameBoard[row + 1][col + 1] == 2 || gameBoard[row + 1][col + 1] == 3)) {
                       isJumpPossible = true;
@@ -240,7 +262,7 @@
       var col = getCol(field);
       console.log("[" + (row + 1) + ", " + (col + 1) + "]");
 
-      if (player == 1 && gameBoard[row][col] == 2 || gameBoard[row][col] == 3) {
+      if (turnOfPlayer.number == 1 && gameBoard[row][col] == 2 || gameBoard[row][col] == 3) {
           if (doesFieldExists(row + 2, col + 2) && gameBoard[row + 2][col + 2] == 1 &&
               (gameBoard[row + 1][col + 1] == 6 || gameBoard[row + 1][col + 1] == 7)) {
               isJumpPossible = true;
@@ -258,7 +280,7 @@
               isJumpPossible = true;
           }
       }
-      if (player == 2 && gameBoard[row][col] == 6 || gameBoard[row][col] == 7) {
+      if (turnOfPlayer.number == 2 && gameBoard[row][col] == 6 || gameBoard[row][col] == 7) {
           if (doesFieldExists(row + 2, col + 2) && gameBoard[row + 2][col + 2] == 1 &&
               (gameBoard[row + 1][col + 1] == 2 || gameBoard[row + 1][col + 1] == 3)) {
               isJumpPossible = true;
@@ -289,7 +311,7 @@
           gameBoard[getRow(chosenField)][getCol(chosenField)] = 1;
           gameBoard[mediumRow][mediumCol] = 1;
 
-          console.log("Joueur: " + player + " a mange piece d'adversaire");
+          console.log("Joueur: " + turnOfPlayer.pseudo + " a mange piece d'adversaire");
           document.querySelector('#' + chosenField).style.backgroundColor = "#A67D5D";
 
 
@@ -331,8 +353,8 @@
       }
       if (i == 0 || j == 0) {
           win = true;
-          alert("Le joueur " + player + " à gagner !!");
-          let json = JSON.stringify({ "message": "End Game", "winner": player, "player1": player1, "player2": player2 });
+          alert("Le joueur " + turnOfPlayer.pseudo + " à gagner !!");
+          let json = JSON.stringify({ "message": "End Game", "winner": turnOfPlayer.pseudo, "player1": player1.pseudo, "player2": player2.pseudo });
           ws.send(json);
       }
   }
@@ -340,7 +362,7 @@
   //Update GameBoarder les pieces
   function draw() {
       nbCoup++;
-      console.log("Matrice : " + gameBoard);
+      // console.log("Matrice : " + gameBoard);
       let field = { row: 0, col: 0, value: 0 };
       for (var row = 0; row < 8; row++) {
           for (var col = 0; col < 8; col++) {
@@ -365,7 +387,7 @@
 
 
   function drawEmptyBoard() {
-      console.log("Tour du joueur " + player)
+      console.log("Tour du joueur " + turnOfPlayer.pseudo)
       for (var row = 0; row < 8; row++) {
           for (var col = 0; col < 8; col++) {
               if ((row % 2 == 0 && col % 2 == 1) || (row % 2 == 1 && col % 2 == 0)) {
@@ -392,6 +414,7 @@
                           canJump() &&
                           canJumpParticular(chosenField, this.id)) {
                           jump(this.id);
+
                       } else if (chosenField != "none" &&
                           canJump() == false &&
                           canMove(this.id)) {
@@ -470,4 +493,8 @@
                                                                                                                                                                                                                                                                                                                                                                                                                                                           </svg>\
                                                                                                                                                                                                                                                                                                                                                                                                                                                           <img src=\"../img/queenBlanche.png\" class=\"crown\">";
       }
+  }
+
+  function isClientTurnOf() {
+      return login == turnOfPlayer.pseudo;
   }

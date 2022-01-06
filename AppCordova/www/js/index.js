@@ -30,19 +30,35 @@ ws.onmessage = function(e) {
         displayScore(object["data"].scores);
     } else if (object["action"] == "Update GameBoard") {
         updateBoard(object["data"].gameBoard);
-    } else if (object["action"] == "Get GameInfo") {
-        //setStarter(object["starter"]);
-        //setPlayer("player1", object["player1"]);
-        //setPlayer("player2", object["player2"]);
+    } else if (object["action"] == "Get Info Init Game") {
+        setStarter(object["data"].starter);
+        console.log(object["data"]);
+        setPlayer("player1", object["data"].player1);
+        setPlayer("player2", object["data"].player2);
+        console.log(isClientTurnOf());
+        createFields();
+    } else if (object["action"] == "Update Turn") {
+
+        updateTurn(object["data"].turnOfPlayer);
     }
 };
 
+function setTurnOfPlayer(player) {
+    console.log("Mon login est : " + login);
+    console.log("Fin du tour de " + turnOfPlayer.pseudo);
+    turnOfPlayer = player;
+    console.log("Début du tour de " + turnOfPlayer);
+}
+
+function updateTurn(object) {
+    turnOfPlayer = object;
+}
+
+
 let login;
 let mdp;
-let whitePlayer;
 let player1;
 let player2;
-
 
 function authentification() {
     login = document.getElementById("login").value;
@@ -61,13 +77,17 @@ function saveScore() {
 }
 
 function setStarter(starter) {
-    whitePlayer = starter;
+    turnOfPlayer = starter;
 }
 
 function setPlayer(player, pseudo) {
     if (player == "player1") {
         player1 = { "pseudo": pseudo, "number": 1 };
+
+        console.log(player1);
     } else if (player == "player2") {
-        player2 = { "pseudo": pseudo, "number": 2 };;
+        player2 = { "pseudo": pseudo, "number": 2 };
+
+        console.log(player2);
     }
 }
