@@ -17,7 +17,7 @@ function displayChoice() {
 
 function createScoreTable(object) {
     console.log(object);
-    var classement = document.getElementById("scoreBoard");
+    var scoreBoard = document.getElementById("scoreBoard");
     var tbl = document.createElement("table");
     var tblBody = document.createElement("tbody");
 
@@ -48,5 +48,5 @@ function createScoreTable(object) {
     });
 
     tbl.appendChild(tblBody);
-    classement.appendChild(tbl);
+    scoreBoard.appendChild(tbl);
 }
