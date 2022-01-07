@@ -3,9 +3,9 @@ body {
     background-color: #F0F0F0;
 }
 
-.log,
-.classement,
-.choix {
+.User Authentication,
+.score,
+.choice {
     position: absolute;
     top: 50%;
     left: 50%;

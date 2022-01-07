@@ -1,23 +1,23 @@
-function displayClassement(object) {
-    document.getElementById("choix").style.display = "none";
-    document.getElementById('classement').style.display = "block";
-    getDataClassement(object);
+function displayScore(object) {
+    document.getElementById("choice").style.display = "none";
+    document.getElementById('score').style.display = "block";
+    createScoreTable(object);
 }
 
 function displayBoard() {
-    document.getElementById("choix").style.display = "none";
+    document.getElementById("choice").style.display = "none";
     document.getElementById('board').style.display = "block";
-    document.getElementById('classement').style.display = "none";
+    document.getElementById('score').style.display = "none";
 }
 
-function displayChoix() {
-    document.getElementById("log").style.display = "none";
-    document.getElementById("choix").style.display = "block";
+function displayChoice() {
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("choice").style.display = "block";
 }
 
-function getDataClassement(object) {
+function createScoreTable(object) {
     console.log(object);
-    var classement = document.getElementById("scoreBoard");
+    var scoreBoard = document.getElementById("scoreBoard");
     var tbl = document.createElement("table");
     var tblBody = document.createElement("tbody");
 
@@ -48,5 +48,5 @@ function getDataClassement(object) {
     });
 
     tbl.appendChild(tblBody);
-    classement.appendChild(tbl);
+    scoreBoard.appendChild(tbl);
 }
