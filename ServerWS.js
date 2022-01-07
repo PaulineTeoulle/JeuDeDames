@@ -153,9 +153,6 @@ let usersInGameList = []; //Contient les logins des utilisateurs en partie
 function connectUser(login, password, connection) {
     let userInformations = { "pseudo": login, "socket": connection };
     usersConnectedList.push(userInformations);
-
-    //updateConnectedUser(login);
-    //getConnexionFromLogin(login);
     let json = JSON.stringify({ "action": "User connected" });
     connection.send(json);
 }
@@ -206,9 +203,7 @@ function addUserIfUnique(login, password, connection) {
     let instance = new userModel.Users({ pseudo: login, password: password, numberOfGamePlayed: 0, numberOfGameWon: 0 });
     userModel.Users.find({ pseudo: login, password: password }, function(err, user) {
         if (err) return handleError(err);
-        console.log(user);
         if (user.length != 0) {
-            console.log("user >0");
             connectUser(login, password, connection);
         } else if (user.length == 0) {
             instance.save(function(err) {
@@ -339,16 +334,22 @@ function addCurrentgame(player1, player2) {
 
     currentGame.save(function(err) {
         if (err) return handleError(err);
-        let userInformations = {
-            "duo": [
-                player1,
-                player2
-            ]
-        };
-        usersInGameList.push(userInformations);
+        let test = createDuoInfo(player1, player2);
+        console.log(test);
         sendInfoGameToClient(player1, player1, player1, player2);
         sendInfoGameToClient(player2, player1, player1, player2);
     });
+}
+
+function createDuoInfo(player1, player2) {
+    let userInformations = {
+        "duo": [
+            player1,
+            player2
+        ]
+    };
+    usersInGameList.push(userInformations);
+    return userInformations;
 }
 
 function removeCurrentGame(player1) {

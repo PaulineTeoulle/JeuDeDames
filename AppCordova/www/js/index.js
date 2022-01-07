@@ -36,6 +36,9 @@ Selon le message du serveur que l'on vient de recevoir, on fait un affichage
 */
 ws.onmessage = function(e) {
     var object = JSON.parse(e.data);
+
+    console.log(object["action"]);
+    console.log(object["data"]);
     if (object["action"] == "User connected") {
         displayChoice();
     } else if (object["action"] == "Get Score") {
