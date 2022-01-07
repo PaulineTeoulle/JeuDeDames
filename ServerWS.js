@@ -73,7 +73,10 @@ wsServer.on('request', function(request) {
                 console.log(usersWaitingList);
                 if (usersWaitingList.length >= 2) {
                     let player1 = pickRandomUser(usersWaitingList);
+                    //let player2 = pickRandomUser(usersWaitingList);
+                    console.log(player1);
                     let player2 = pickRandomUser(usersWaitingList);
+                    console.log(player2);
                     addCurrentgame(player1, player2);
                 }
             }
