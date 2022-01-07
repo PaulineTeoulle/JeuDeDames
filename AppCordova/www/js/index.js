@@ -22,7 +22,7 @@ Selon le message du serveur que l'on vient de recevoir, on fait un affichage
 */
 ws.onmessage = function(e) {
     var object = JSON.parse(e.data);
-    console.log(object["action"]);
+    //console.log(object["action"]);
     if (object["action"] == "User connected") {
         displayChoice();
     } else if (object["action"] == "Get Score") {
@@ -38,18 +38,10 @@ ws.onmessage = function(e) {
         console.log(isClientTurnOf());
         createFields();
     } else if (object["action"] == "Update Turn") {
-        console.log(object["data"]);
         updateTurn(object["data"].turnOfPlayer);
         console.log(isClientTurnOf());
     }
 };
-
-/*function setTurnOfPlayer(player) {
-    console.log("Mon login est : " + login);
-    console.log("Fin du tour de " + turnOfPlayer);
-    turnOfPlayer = player;
-    console.log("Début du tour de " + turnOfPlayer);
-}*/
 
 function updateTurn(newTurnOfPlayer) {
     turnOfPlayer = newTurnOfPlayer;
@@ -89,10 +81,7 @@ function setStarter(starter) {
 function setPlayer(player, pseudo) {
     if (player == "player1") {
         player1 = pseudo;
-
-        console.log(player1);
     } else if (player == "player2") {
         player2 = pseudo;
-        console.log(player2);
     }
 }
