@@ -1,5 +1,19 @@
-//Ouverture d'une websocket
-const ws = new WebSocket('ws://127.0.0.1:9898/');
+document.addEventListener('deviceready', onDeviceReady, false);
+
+let isAndroid;
+
+function onDeviceReady() {
+    isAndroid = device.isVirtual;
+}
+let ws;
+if (!isAndroid) {
+    ws = new WebSocket('ws://127.0.0.1:9898/');
+} else {
+    ws = new WebSocket('ws://10.0.2.2:9898/');
+}
+
+console.log(ws);
+
 //Listener d'ouverture de websocket
 ws.onopen = function() {
     console.log("Websocket ouvert - Client");
