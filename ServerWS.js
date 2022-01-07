@@ -30,11 +30,13 @@ wsServer.on('request', function(request) {
     const connection = request.accept(null, request.origin);
     console.log("Connection d'un client");
 
+
     //Un socket 
     //console.log(connection); 
     let loginInfo;
     //A la réception d'un message
     connection.on('message', function(message) {
+
 
         //Envoi d'un accusé de réception au client
         let json = JSON.stringify({ "action": "Message bien reçu - Serveur" });
@@ -52,6 +54,7 @@ wsServer.on('request', function(request) {
 
         if (messageIsJSON) {
             //Récupération des données JSON envoyées par le client
+
             let action = parsedJson.action;
             let login = parsedJson.data.login;
             loginInfo = parsedJson.data.login;
@@ -59,6 +62,7 @@ wsServer.on('request', function(request) {
 
             if (action == "User Authentication") {
                 addUserIfUnique(login, password, connection);
+
             }
             if (action == "Score Update") {
                 updateTopScore(login);
@@ -66,6 +70,7 @@ wsServer.on('request', function(request) {
 
             if (action == "Waiting for a game") {
                 addUserInWaitingList(login, connection);
+
                 console.log(usersWaitingList);
                 if (usersWaitingList.length >= 2) {
                     let player1 = pickRandomUser(usersWaitingList);
@@ -95,6 +100,7 @@ wsServer.on('request', function(request) {
                 addFinishedGame(player1, player2, winner);
                 removeCurrentGame(player1, player2);
                 updateScores(player1, player2, winner);
+
             }
 
             if (action == "Set TurnOf") {
@@ -109,6 +115,7 @@ wsServer.on('request', function(request) {
 
     //A la fermeture d'une connection
     connection.on('close', function(reasonCode, description) {
+
         removeUserInGameList(loginInfo);
         removeUserInWaitingList(loginInfo);
         removeUserInConnectedList(loginInfo);
@@ -147,6 +154,7 @@ let usersInGameList = []; //Contient les logins des utilisateurs en partie
 function connectUser(login, password, connection) {
     let userInformations = { "pseudo": login, "socket": connection };
     usersConnectedList.push(userInformations);
+
     //updateConnectedUser(login);
     //getConnexionFromLogin(login);
     let json = JSON.stringify({ "action": "User connected" });
@@ -222,18 +230,23 @@ function createTopScore(login) {
 
 function updateTopScore(login) {
     let score = 0;
+
     userModel.Users.findOne({ pseudo: login }, 'numberOfGamePlayed numberOfGameWon', function(err, user) {
+
         if (err) return handleError(err);
         if (user.numberOfGamePlayed != 0) {
             score = user.numberOfGameWon / user.numberOfGamePlayed * 100;
         }
     });
 
+
     topScoreModel.TopScores.findOneAndReplace({ pseudo: login }, function(err, user) {
+
         if (err) return handleError(err);
         user.score = score;
     });
 }
+
 
 
 function updatenumberOfGamePlayed(login) {
@@ -245,9 +258,11 @@ function updatenumberOfGamePlayed(login) {
 
 function updatenumberOfGameWon(login) {
     userModel.Users.findOne({ pseudo: login }, 'numberOfGameWon', function(err, user) {
+
         if (err) return handleError(err);
         user.numberOfGameWon += 1;
     });
+
 }
 
 function updateBoardInCurrentGame(duo, gameBoard) {
@@ -265,6 +280,7 @@ function updateBoardInCurrentGame(duo, gameBoard) {
         });
 }
 
+
 function sendGameBoardToClient(login, gameBoard) {
     let socket = getConnexionFromLogin(login);
     let json = JSON.stringify({ "action": "Update GameBoard", "data": { "gameBoard": gameBoard } });
@@ -280,10 +296,12 @@ function sendInfoGameToClient(login, starter, player1, player2) {
 function getScore(login) {
     let socket = getConnexionFromLogin(login);
     topScoreModel.TopScores.find(function(err, scores) {
+
         if (err) return handleError(err);
         let json = JSON.stringify({ "action": "Get Score", "data": { "scores": scores } });
         socket.send(json);
     });
+
 }
 
 function sendTurnOfPlayerToDuo(duo, turnOfPlayer) {
@@ -331,7 +349,6 @@ function addCurrentgame(player1, player2) {
         usersInGameList.push(userInformations);
         sendInfoGameToClient(player1, player1, player1, player2);
         sendInfoGameToClient(player2, player1, player1, player2);
-
     });
 }
 

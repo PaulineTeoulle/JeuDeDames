@@ -71,10 +71,44 @@ h1 {
 }
 
 #board {
-    width: 640px;
-    height: 640px;
-    margin: auto;
+    width: 650px;
+    height: 650px;
+    margin-top: 60px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+    border-radius: 5px;
 }
+
+
+#checkeredLoading {
+    min-width: 100%;
+    min-height: 100%;
+    -webkit-animation-name:checkersAnim;
+    -webkit-animation-duration:8s;
+    -webkit-animation-timing-function:ease-in-out;
+    -webkit-animation-delay:0s;
+    -webkit-animation-iteration-count:infinite;
+    -webkit-animation-direction:normal;
+    -webkit-animation-play-state:running;
+    
+  /*  https://projects.verou.me/css3patterns/#checkerboard*/
+    background-color: #E8D0AA;
+    background-image: linear-gradient(45deg, #A67D5D 25%,transparent 25%, transparent 75%, #A67D5D 75%, #A67D5D), 
+    linear-gradient(45deg, #A67D5D 25%, transparent 25%, transparent 75%, #A67D5D 75%, #A67D5D);
+    background-size:120px 120px;
+    background-position:0 0, 60px 60px;
+}
+  
+@-webkit-keyframes checkersAnim
+{
+0%   {background-position:0 0, 60px 60px;}
+25%  {background-position:60px 0, 120px 60px;}
+50%  {background-position:60px 60px, 120px 120px;}
+75%  {background-position:0 60px, 60px 120px;}
+100% {background-position:0 0, 60px 60px;}
+}
+  
 
 @media screen and (max-width: 500px) {
     .light {

@@ -7,7 +7,16 @@ function displayScore(object) {
 function displayBoard() {
     document.getElementById("choice").style.display = "none";
     document.getElementById('board').style.display = "block";
-    document.getElementById('score').style.display = "none";
+    document.getElementById('classement').style.display = "none";
+    document.getElementById('checkeredLoading').style.display = "none";
+}
+
+function displayWaitingRoom() {
+    document.getElementById("choix").style.display = "none";
+    document.getElementById('board').style.display = "none";
+    document.getElementById('classement').style.display = "none";
+    document.getElementById('checkeredLoading').style.display = "block";
+
 }
 
 function displayChoice() {
@@ -17,7 +26,7 @@ function displayChoice() {
 
 function createScoreTable(object) {
     console.log(object);
-    var scoreBoard = document.getElementById("scoreBoard");
+    var classement = document.getElementById("scoreBoard");
     var tbl = document.createElement("table");
     var tblBody = document.createElement("tbody");
 
@@ -48,5 +57,5 @@ function createScoreTable(object) {
     });
 
     tbl.appendChild(tblBody);
-    scoreBoard.appendChild(tbl);
+    classement.appendChild(tbl);
 }
