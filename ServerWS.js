@@ -70,7 +70,6 @@ wsServer.on('request', function(request) {
 
             if (action == "Waiting for a game") {
                 addUserInWaitingList(login, connection);
-
                 console.log(usersWaitingList);
                 if (usersWaitingList.length >= 2) {
                     let player1 = pickRandomUser(usersWaitingList);

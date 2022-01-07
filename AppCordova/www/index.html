@@ -63,7 +63,7 @@
                     <div class="card shadow-2-strong" style="font-size: large; color: white; background-color: #A67D5D; border-radius: 1rem;">
                         <div class="card-body p-5 text-center">
                             <h2 class="mb-1">Bonjour !</h2>
-                            <p style="font-size: large; color: white;" class="mb-1" >Connectez-vous pour défier les meilleurs joueurs de dames.</p>
+                            <p style="font-size: large; color: white;" class="mb-1">Connectez-vous pour défier les meilleurs joueurs de dames.</p>
                             <br/>
                             <div class="form-outline mb-4">
                                 <input style="background-color: #E8D0AA;" placeholder="Entrer votre login" type="email" id="login" class="form-control form-control-lg" />
@@ -84,8 +84,7 @@
         </div>
     </section>
 
-    <section  id="choix" id="log" class="vh-100" style=" display: none;background-color: #E8D0AA;">
-
+    <section id="choix" id="log" class="vh-100" style=" display: none;background-color: #E8D0AA;">
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-12 col-md-8 col-lg-6 col-xl-5">
@@ -93,7 +92,7 @@
                         <div class="card-body p-5 text-center">
 
                             <button style="margin:5px; width: -webkit-fill-available;" class="btn btn-dark btn-lg btn-block" type="button" id="nGame" onclick="handleNewGame()">Nouvelle partie</button>
-                            <button style="margin:5px; width: -webkit-fill-available;" class="btn btn-dark btn-lg btn-block" type="button" id="class" onclick="displayClassement()">Classement général</button>
+                            <button style="margin:5px; width: -webkit-fill-available;" class="btn btn-dark btn-lg btn-block" type="button" id="class" onclick="askForScore()">Classement général</button>
 
                         </div>
                     </div>
@@ -118,16 +117,16 @@
 
     <!--WaitingRoom-->
     <div id="checkeredLoading" style="display: none;">
-      <div classs="container p-5" style="top: 150px;">
-        <div class="row no-gutters">
-          <div class="col-lg-6 col-md-12 m-auto">
-            <div class="alert alert-success fade show text-center" style="top: 200px;">
-              <h2 class="alert-heading">On y est presque!</h2>
-              <h5>Nous cherchons un adversaire de meme niveau que vous...</h5>
+        <div classs="container p-5" style="top: 150px;">
+            <div class="row no-gutters">
+                <div class="col-lg-6 col-md-12 m-auto">
+                    <div class="alert alert-success fade show text-center" style="top: 200px;">
+                        <h2 class="alert-heading">On y est presque!</h2>
+                        <h5>Nous cherchons un adversaire de meme niveau que vous...</h5>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
 
     <div id="board" style="display: none;">

@@ -1,27 +1,27 @@
 function displayScore(object) {
-    document.getElementById("choice").style.display = "none";
+    document.getElementById("choix").style.display = "none";
+    document.getElementById("board").style.display = "none";
     document.getElementById('score').style.display = "block";
     createScoreTable(object);
 }
 
 function displayBoard() {
-    document.getElementById("choice").style.display = "none";
+    document.getElementById("choix").style.display = "none";
     document.getElementById('board').style.display = "block";
-    document.getElementById('classement').style.display = "none";
+    document.getElementById('score').style.display = "none";
     document.getElementById('checkeredLoading').style.display = "none";
 }
 
 function displayWaitingRoom() {
     document.getElementById("choix").style.display = "none";
     document.getElementById('board').style.display = "none";
-    document.getElementById('classement').style.display = "none";
+    document.getElementById('score').style.display = "none";
     document.getElementById('checkeredLoading').style.display = "block";
-
 }
 
 function displayChoice() {
-    document.getElementById("auth").style.display = "none";
-    document.getElementById("choice").style.display = "block";
+    document.getElementById("log").style.display = "none";
+    document.getElementById("choix").style.display = "block";
 }
 
 function createScoreTable(object) {

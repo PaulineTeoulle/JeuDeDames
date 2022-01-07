@@ -22,7 +22,7 @@ ws.onopen = function() {
 function handleNewGame() {
     let json = JSON.stringify({ "action": "Waiting for a game", "data": { "login": login } });
     ws.send(json);
-    displayBoard();
+    displayWaitingRoom();
 }
 
 function askForScore() {
@@ -47,6 +47,7 @@ ws.onmessage = function(e) {
         setPlayer("player1", object["data"].player1);
         setPlayer("player2", object["data"].player2);
         console.log(isClientTurnOf());
+        displayBoard();
         createFields();
     } else if (object["action"] == "Update Turn") {
         updateTurn(object["data"].turnOfPlayer);
@@ -65,7 +66,7 @@ let player2;
 
 function authentification() {
     login = document.getElementById("login").value;
-    password = document.getElementById("password").value;
+    password = document.getElementById("mdp").value;
     let json = JSON.stringify({ "action": "User Authentication", "data": { "login": login, "password": password } });
     if (login != "" && password != "") {
         ws.send(json);
