@@ -1,10 +1,10 @@
   /*
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            0: videClair
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            1: videSombre
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            2: Joueur1 pieceBlanche
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            3: reineBlanche
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            6: joueur2 pieceNoire
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            7: reineNoire */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0: videClair
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      1: videSombre
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      2: Joueur1 pieceBlanche
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      3: reineBlanche
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      6: joueur2 pieceNoire
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      7: reineNoire */
   var gameBoard = [
       [0, 6, 0, 6, 0, 6, 0, 6],
       [6, 0, 6, 0, 6, 0, 6, 0],
@@ -41,8 +41,6 @@
 
   //verifier si on peut jouer le carreau selectionne
   function canChooseField(field) {
-      console.log("Can choose field" + turnOfPlayer);
-      console.log(player1);
       if (turnOfPlayer == player1 &&
           (gameBoard[getRow(field)][getCol(field)] == 2 ||
               gameBoard[getRow(field)][getCol(field)] == 3)) {
@@ -91,18 +89,19 @@
 
   //changer la couleur d'element selectionner
   function chooseField(field) {
-
       console.log(" choose field" + turnOfPlayer);
-      if (isNextJump == false) {
-          if (chosenField == field) {
-              document.querySelector('#' + chosenField).style.backgroundColor = "#A67D5D";
-              chosenField = "none";
-          } else {
-              if (chosenField != "none") {
+      if (isClientTurnOf()) {
+          if (isNextJump == false) {
+              if (chosenField == field) {
                   document.querySelector('#' + chosenField).style.backgroundColor = "#A67D5D";
+                  chosenField = "none";
+              } else {
+                  if (chosenField != "none") {
+                      document.querySelector('#' + chosenField).style.backgroundColor = "#A67D5D";
+                  }
+                  chosenField = field;
+                  document.querySelector('#' + chosenField).style.backgroundColor = "#25F400";
               }
-              chosenField = field;
-              document.querySelector('#' + chosenField).style.backgroundColor = "#25F400";
           }
       }
   }
@@ -208,6 +207,7 @@
               }
           }
       }
+      console.log("isJumpPossible" + isJumpPossible);
       return isJumpPossible;
   }
 
@@ -434,7 +434,6 @@
   }
 
   function updateBoard(newGameBoard) {
-
       gameBoardParsed = JSON.parse(newGameBoard);
       gameBoard = gameBoardParsed;
       drawFields();
