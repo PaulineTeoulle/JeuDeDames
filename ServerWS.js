@@ -54,10 +54,10 @@ wsServer.on('request', function(request) {
             //Récupération des données JSON envoyées par le client
             let action = parsedJson.action;
             let login = parsedJson.data.login;
-            let mdp = parsedJson.data.mdp;
+            let password = parsedJson.data.password;
 
             if (action == "User Authentication") {
-                addUserIfUnique(login, mdp, connection);
+                addUserIfUnique(login, password, connection);
             }
             if (action == "Score Update") {
                 updateTopScore(login);
@@ -78,11 +78,8 @@ wsServer.on('request', function(request) {
                 updateBoardInCurrentGame(duo, gameBoard);
             }
             if (action == "Update TurnOfPlayer") {
-                //console.log(login);
                 let turnOfPlayer = parsedJson.data.turnOfPlayer;
-                //console.log(turnOfPlayer);
                 let duo = getDuoFromLogin(login);
-                //console.log(duo);
                 sendTurnOfPlayerToDuo(duo, turnOfPlayer);
             }
 
@@ -99,10 +96,6 @@ wsServer.on('request', function(request) {
                 updateScores(player1, player2, winner);
             }
 
-            if (action == "Get TurnOf") {
-                let duo = getDuoFromLogin(login);
-                getTurnOf(duo);
-            }
             if (action == "Set TurnOf") {
                 console.log(parsedJson.data.turnOfPlayer);
                 let turnOfPlayer = parsedJson.data.turnOfPlayer;
@@ -123,7 +116,6 @@ wsServer.on('request', function(request) {
 
 
 function setTurnOf(duo, turnOfPlayer) {
-    //console.log(turnOfPlayer);
     let player1 = duo[0];
     let player2 = duo[1];
 
@@ -135,37 +127,22 @@ function setTurnOf(duo, turnOfPlayer) {
             currentGame.turnOfPlayer = turnOfPlayer;
             sendTurnOfPlayerToOneClient(player1, currentGame.turnOfPlayer);
             sendTurnOfPlayerToOneClient(player2, currentGame.turnOfPlayer);
-            console.log("SET TURN ; Tour de :" + currentGame.turnOfPlayer);
-        });
-}
-
-
-function getTurnOf(duo) {
-    let player1 = duo[0];
-    let player2 = duo[1];
-
-    currentGameModel.CurrentGames.findOne({
-            $or: [{ pseudo1: player1 }, { pseudo1: player2 }]
-        },
-        function(err, currentGame) {
-            if (err) return handleError(err);
-            console.log(currentGame.turnOfPlayer);
         });
 }
 
 function updateScores(player1, player2, winner) {
-    updateNbPartiesJouees(player1);
-    updateNbPartiesJouees(player2);
-    updateNbPartiesGagnees(winner);
+    updatenumberOfGamePlayed(player1);
+    updatenumberOfGamePlayed(player2);
+    updatenumberOfGameWon(winner);
 }
 
-let usersConnectedList = []; //List socket pseudo
+let usersConnectedList = []; //List login socket
 let usersWaitingList = []; // Contient les logins utilisateur attendant partie
 let usersInGameList = []; //Contient les logins des utilisateurs en partie
 
 //Connection d'un utilisateur
 //Récupération 
-function connectUser(login, mdp, connection) {
+function connectUser(login, password, connection) {
     let userInformations = { "pseudo": login, "socket": connection };
     usersConnectedList.push(userInformations);
     //updateConnectedUser(login);
@@ -216,21 +193,23 @@ function removeUserInWaitingList(index) {
     }
 }*/
 
-function addUserIfUnique(login, mdp, connection) {
-    userModel.Users.countDocuments({ pseudo: login, mdp: mdp }, function(err, count) {
+function addUserIfUnique(login, password, connection) {
+    userModel.Users.countDocuments({ pseudo: login, password: password }, function(err, count) {
         if (count == 0) {
-            addUser(login, mdp, connection);
+            console.log("Unique");
+            console.log("Ajout");
+            addUser(login, password, connection);
             //getConnectedUser(login);
-            connectUser(login, mdp, connection);
+            connectUser(login, password, connection);
         } else {
-            connectUser(login, mdp, connection);
+            connectUser(login, password, connection);
         }
     });
 }
 
 //Ajout d'un utilisateur
-function addUser(login, mdp, connection) {
-    let instance = new userModel.Users({ pseudo: login, mdp: mdp, nbPartiesJouees: 0, nbPartiesGagnees: 0, estConnecte: false });
+function addUser(login, password, connection) {
+    let instance = new userModel.Users({ pseudo: login, password: password, numberOfGamePlayed: 0, numberOfGameWon: 0, isConnected: false });
     instance.save(function(err) {
         if (err) return handleError(err);
         createTopScore(login);
@@ -238,9 +217,9 @@ function addUser(login, mdp, connection) {
 }
 
 function updateConnectedUser(login) {
-    userModel.Users.findOne({ pseudo: login }, 'nbPartiesJouees nbPartiesGagnees', function(err, user) {
+    userModel.Users.findOne({ pseudo: login }, 'numberOfGamePlayed numberOfGameWon', function(err, user) {
         if (err) return handleError(err);
-        user.estConnecte = true;
+        user.isConnected = true;
     });
 }
 
@@ -260,10 +239,10 @@ function createTopScore(login) {
 
 function updateTopScore(login) {
     let score = 0;
-    userModel.Users.findOne({ pseudo: login }, 'nbPartiesJouees nbPartiesGagnees', function(err, user) {
+    userModel.Users.findOne({ pseudo: login }, 'numberOfGamePlayed numberOfGameWon', function(err, user) {
         if (err) return handleError(err);
-        if (user.nbPartiesJouees != 0) {
-            score = user.nbPartiesGagnees / user.nbPartiesJouees * 100;
+        if (user.numberOfGamePlayed != 0) {
+            score = user.numberOfGameWon / user.numberOfGamePlayed * 100;
         }
     });
 
@@ -273,21 +252,21 @@ function updateTopScore(login) {
     });
 }
 
-function updateNbPartiesJouees(login) {
-    userModel.Users.findOne({ pseudo: login }, 'nbPartiesJouees', function(err, user) {
+function updatenumberOfGamePlayed(login) {
+    userModel.Users.findOne({ pseudo: login }, 'numberOfGamePlayed', function(err, user) {
         if (err) return handleError(err);
-        user.nbPartiesJouees += 1;
+        user.numberOfGamePlayed += 1;
     });
-    //console.log("updateNbPartiesJouees")
+    //console.log("updatenumberOfGamePlayed")
 }
 
 
-function updateNbPartiesGagnees(login) {
-    userModel.Users.findOne({ pseudo: login }, 'nbPartiesGagnees', function(err, user) {
+function updatenumberOfGameWon(login) {
+    userModel.Users.findOne({ pseudo: login }, 'numberOfGameWon', function(err, user) {
         if (err) return handleError(err);
-        user.nbPartiesGagnees += 1;
+        user.numberOfGameWon += 1;
     });
-    //console.log("updateNbPartiesGagnees")
+    //console.log("updatenumberOfGameWon")
 }
 
 function updateBoardInCurrentGame(duo, gameBoard) {
@@ -300,7 +279,6 @@ function updateBoardInCurrentGame(duo, gameBoard) {
         function(err, currentGame) {
             if (err) return handleError(err);
             currentGame.gameBoard = gameBoard;
-            //console.log(currentGame.gameBoard);
             sendGameBoardToClient(player1, gameBoard);
             sendGameBoardToClient(player2, gameBoard);
         });

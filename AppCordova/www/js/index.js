@@ -36,17 +36,14 @@ Selon le message du serveur que l'on vient de recevoir, on fait un affichage
 */
 ws.onmessage = function(e) {
     var object = JSON.parse(e.data);
-    //console.log(object["action"]);
     if (object["action"] == "User connected") {
         displayChoice();
     } else if (object["action"] == "Get Score") {
-        console.log(object["data"].scores);
         displayScore(object["data"].scores);
     } else if (object["action"] == "Update GameBoard") {
         updateBoard(object["data"].gameBoard);
     } else if (object["action"] == "Get Info Init Game") {
         setStarter(object["data"].starter);
-        console.log(object["data"]);
         setPlayer("player1", object["data"].player1);
         setPlayer("player2", object["data"].player2);
         console.log(isClientTurnOf());
@@ -61,21 +58,16 @@ function updateTurn(newTurnOfPlayer) {
     turnOfPlayer = newTurnOfPlayer;
 }
 
-function askForTurnOfPlayer() {
-    let json = JSON.stringify({ "action": "Get TurnOf", "data": { "login": login } });
-    ws.send(json);
-}
-
 let login;
-let mdp;
+let password;
 let player1;
 let player2;
 
 function authentification() {
     login = document.getElementById("login").value;
-    mdp = document.getElementById("mdp").value;
-    let json = JSON.stringify({ "action": "User Authentication", "data": { "login": login, "mdp": mdp } });
-    if (login != "" && mdp != "") {
+    password = document.getElementById("password").value;
+    let json = JSON.stringify({ "action": "User Authentication", "data": { "login": login, "password": password } });
+    if (login != "" && password != "") {
         ws.send(json);
     }
 }
