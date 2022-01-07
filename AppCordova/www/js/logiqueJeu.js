@@ -1,10 +1,10 @@
   /*
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          0: videClair
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          1: videSombre
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          2: Joueur1 pieceBlanche
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          3: reineBlanche
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          6: joueur2 pieceNoire
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          7: reineNoire */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            0: videClair
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            1: videSombre
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            2: Joueur1 pieceBlanche
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            3: reineBlanche
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            6: joueur2 pieceNoire
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            7: reineNoire */
   var gameBoard = [
       [0, 6, 0, 6, 0, 6, 0, 6],
       [6, 0, 6, 0, 6, 0, 6, 0],
@@ -16,6 +16,17 @@
       [2, 0, 2, 0, 2, 0, 2, 0]
   ];
 
+  /*var gameBoard = [
+      [0, 6, 0, 6, 0, 6, 0, 6],
+      [6, 0, 6, 0, 6, 0, 6, 0],
+      [0, 6, 0, 6, 0, 6, 0, 6],
+      [1, 0, 1, 0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0, 1, 0, 1],
+      [2, 0, 2, 0, 2, 0, 2, 0],
+      [0, 2, 0, 2, 0, 2, 0, 2],
+      [2, 0, 2, 0, 2, 0, 2, 0]
+  ];*/
+
   var boardCode = "";
   var chosenField = "none";
   var turnOfPlayer;
@@ -24,9 +35,8 @@
   var nbCoup = 0;
 
 
-  function doesFieldExists(field) {
-      console.log("DOESFIELD EXIST" + field);
-      if (field.row < 8 && field.col < 8 && field.row >= 0 && field.col >= 0) return true;
+  function doesFieldExists(row, col) {
+      if (row < 8 && col < 8 && row >= 0 && col >= 0) return true;
       else return false;
   }
 
@@ -42,16 +52,13 @@
 
   //verifier si on peut jouer le carreau selectionne
   function canChooseField(field) {
-      console.log("can choose field");
       if (turnOfPlayer == player1 && isClientTurnOf() &&
           (gameBoard[getRow(field)][getCol(field)] == 2 ||
               gameBoard[getRow(field)][getCol(field)] == 3)) {
-          console.log("canChooseField :  true   1");
           return true;
       } else if (turnOfPlayer == player2 && isClientTurnOf() &&
           (gameBoard[getRow(field)][getCol(field)] == 6 ||
               gameBoard[getRow(field)][getCol(field)] == 7)) {
-          console.log("canChooseField :  true  2");
           return true;
       }
   }
@@ -87,20 +94,8 @@
       }
   }
 
-  /*function chooseField(field) {
-      if (isNextJump == false) {
-          if (chosenField == field) {
-              chosenField = "none";
-          } else {
-              if (chosenField != "none") {}
-              chosenField = field;
-          }
-      }
-  }*/
-
   //fonction qui retourne un vrai si on peut deplacer la piece en question
   function canMove(field) {
-      console.log("Can move");
       var row = getRow(field);
       var col = getCol(field);
       var chosenRow = getRow(chosenField);
@@ -110,34 +105,27 @@
 
       if (chosenField != "none" && turnOfPlayer == player1 && gameBoard[chosenRow][chosenCol] == 3 &&
           (Math.abs(row - chosenRow) == Math.abs(col - chosenCol)) && gameBoard[row][col] == 1 && isClientTurnOf()) {
-
-          console.log("Can move :  true  1");
           return true;
       } else
       if (chosenField != "none" && turnOfPlayer == player2 && gameBoard[chosenRow][chosenCol] == 7 &&
           (Math.abs(row - chosenRow) == Math.abs(col - chosenCol)) && gameBoard[row][col] == 1 && isClientTurnOf()) {
 
-          console.log("Can move :  true  2");
           return true;
       }
       if (chosenField != "none" && turnOfPlayer == player1 && gameBoard[chosenRow][chosenCol] == 2 &&
           (row - chosenRow == -1) && Math.abs(col - chosenCol) == 1 && gameBoard[row][col] == 1 && isClientTurnOf()) {
 
-          console.log("Can move :  true  3");
           return true;
       } else
       if (chosenField != "none" && turnOfPlayer == player2 && gameBoard[chosenRow][chosenCol] == 6 &&
           (row - chosenRow == 1) && Math.abs(col - chosenCol) == 1 && gameBoard[row][col] == 1 && isClientTurnOf()) {
 
-          console.log("Can move :  true  4");
           return true;
       }
   }
 
   //Se déplacer
   function move(field) {
-
-      console.log("Move");
       gameBoard[getRow(field)][getCol(field)] = gameBoard[getRow(chosenField)][getCol(chosenField)];
       gameBoard[getRow(chosenField)][getCol(chosenField)] = 1;
       document.querySelector('#' + chosenField).style.backgroundColor = "#A67D5D";
@@ -150,65 +138,55 @@
   function canJump() {
       console.log("Canjump");
       var isJumpPossible = false;
+
+      let field = { row: 0, col: 0, value: 0 };
       for (var row = 0; row < 8; row++) {
           for (var col = 0; col < 8; col++) {
               if (turnOfPlayer == player1 && gameBoard[row][col] == 2 || gameBoard[row][col] == 3) {
-                  console.log("TEST");
-                  console.log(doesFieldExists(row + 2, col + 2));
-                  console.log(gameBoard[row + 2][col + 2]);
-                  console.log(gameBoard[row + 1][col + 1]);
+                  field.col = col;
+                  field.row = row;
+                  field.value = gameBoard[row][col];
 
-                  if (doesFieldExists(row + 2, col + 2) && gameBoard[row + 2][col + 2] == 1 &&
+                  if (doesFieldExists(field.row + 2, field.col + 2) && gameBoard[row + 2][col + 2] == 1 &&
                       (gameBoard[row + 1][col + 1] == 6 || gameBoard[row + 1][col + 1] == 7)) {
                       isJumpPossible = true;
 
-                      console.log("Canjump 1: " + isJumpPossible);
                   }
-                  if (doesFieldExists(row - 2, col + 2) && gameBoard[row - 2][col + 2] == 1 &&
+                  if (doesFieldExists(field.row - 2, field.col + 2) && gameBoard[row - 2][col + 2] == 1 &&
                       (gameBoard[row - 1][col + 1] == 6 || gameBoard[row - 1][col + 1] == 7)) {
                       isJumpPossible = true;
 
-                      console.log("Canjump 2: " + isJumpPossible);
                   }
-                  if (doesFieldExists(row + 2, col - 2) && gameBoard[row + 2][col - 2] == 1 &&
+                  if (doesFieldExists(field.row + 2, field.col - 2) && gameBoard[row + 2][col - 2] == 1 &&
                       (gameBoard[row + 1][col - 1] == 6 || gameBoard[row + 1][col - 1] == 7)) {
                       isJumpPossible = true;
-
-                      console.log("Canjump 3: " + isJumpPossible);
                   }
-                  if (doesFieldExists(row - 2, col - 2) && gameBoard[row - 2][col - 2] == 1 &&
+                  if (doesFieldExists(field.row - 2, field.col - 2) && gameBoard[row - 2][col - 2] == 1 &&
                       (gameBoard[row - 1][col - 1] == 6 || gameBoard[row - 1][col - 1] == 7)) {
                       isJumpPossible = true;
-
-                      console.log("Canjump 4: " + isJumpPossible);
                   }
               }
               if (turnOfPlayer == player2 && gameBoard[row][col] == 6 || gameBoard[row][col] == 7) {
-                  if (doesFieldExists(row + 2, col + 2) && gameBoard[row + 2][col + 2] == 1 &&
+                  if (doesFieldExists(field.row + 2, field.col + 2) && gameBoard[row + 2][col + 2] == 1 &&
                       (gameBoard[row + 1][col + 1] == 2 || gameBoard[row + 1][col + 1] == 3)) {
                       isJumpPossible = true;
 
-                      console.log("Canjump 5: " + isJumpPossible);
                   }
-                  if (doesFieldExists(row - 2, col + 2) && gameBoard[row - 2][col + 2] == 1 &&
+                  if (doesFieldExists(field.row - 2, field.col + 2) && gameBoard[row - 2][col + 2] == 1 &&
                       (gameBoard[row - 1][col + 1] == 2 || gameBoard[row - 1][col + 1] == 3)) {
                       isJumpPossible = true;
-                      console.log("Canjump 6: " + isJumpPossible);
                   }
-                  if (doesFieldExists(row + 2, col - 2) && gameBoard[row + 2][col - 2] == 1 &&
+                  if (doesFieldExists(field.row + 2, field.col - 2) && gameBoard[row + 2][col - 2] == 1 &&
                       (gameBoard[row + 1][col - 1] == 2 || gameBoard[row + 1][col - 1] == 3)) {
                       isJumpPossible = true;
-                      console.log("Canjump 7: " + isJumpPossible);
                   }
-                  if (doesFieldExists(row - 2, col - 2) && gameBoard[row - 2][col - 2] == 1 &&
+                  if (doesFieldExists(field.row - 2, field.col - 2) && gameBoard[row - 2][col - 2] == 1 &&
                       (gameBoard[row - 1][col - 1] == 2 || gameBoard[row - 1][col - 1] == 3)) {
                       isJumpPossible = true;
-                      console.log("Canjump 8: " + isJumpPossible);
                   }
               }
           }
       }
-      console.log("isJumpPossible : " + isJumpPossible);
       return isJumpPossible;
   }
 
@@ -261,12 +239,9 @@
 
   //verifier si on peut faire un deuxieme coup
   function canJumpTwoShots(field) {
-
-      console.log("Can jump 2");
       var isJumpPossible = false;
       var row = getRow(field);
       var col = getCol(field);
-      // console.log("[" + (row + 1) + ", " + (col + 1) + "]");
 
       if (turnOfPlayer == player1 && gameBoard[row][col] == 2 || gameBoard[row][col] == 3) {
           if (doesFieldExists(row + 2, col + 2) && gameBoard[row + 2][col + 2] == 1 &&
@@ -310,7 +285,6 @@
 
   //manger un piece d'adversaire
   function jump(field) {
-      console.log("JUMP" + field);
       if (chosenField != "none") {
           var mediumRow = (getRow(field) + getRow(chosenField)) / 2;
           var mediumCol = (getCol(field) + getCol(chosenField)) / 2;
