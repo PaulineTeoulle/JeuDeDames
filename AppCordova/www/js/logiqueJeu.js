@@ -1,19 +1,19 @@
   /*
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            0: videClair
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            1: videSombre
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            2: Joueur1 pieceBlanche
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            3: reineBlanche
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            6: joueur2 pieceNoire
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            7: reineNoire */
+                        0: videClair
+                        1: videSombre
+                        2: Joueur1 pieceBlanche
+                        3: reineBlanche
+                        6: joueur2 pieceNoire
+                        7: reineNoire */
   var gameBoard = [
-      [0, 6, 0, 6, 0, 6, 0, 6],
-      [6, 0, 6, 0, 6, 0, 6, 0],
-      [0, 6, 0, 6, 0, 6, 0, 6],
+      [0, 1, 0, 1, 0, 1, 0, 1],
+      [1, 0, 1, 0, 1, 0, 1, 0],
+      [0, 1, 0, 6, 0, 1, 0, 1],
+      [1, 0, 2, 0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0, 1, 0, 1],
       [1, 0, 1, 0, 1, 0, 1, 0],
       [0, 1, 0, 1, 0, 1, 0, 1],
-      [2, 0, 2, 0, 2, 0, 2, 0],
-      [0, 2, 0, 2, 0, 2, 0, 2],
-      [2, 0, 2, 0, 2, 0, 2, 0]
+      [1, 0, 1, 0, 1, 0, 1, 0]
   ];
 
   /*var gameBoard = [
@@ -32,7 +32,6 @@
   var turnOfPlayer;
   var win = false;
   var isNextJump = false;
-  var nbCoup = 0;
 
 
   function doesFieldExists(row, col) {
@@ -64,15 +63,17 @@
   }
 
   function changePlayer() {
-      let newTurnOf;
-      if (turnOfPlayer == login && player1 == login) {
-          newTurnOf = player2;
+      if (win == false) {
+          let newTurnOf;
+          if (turnOfPlayer == login && player1 == login) {
+              newTurnOf = player2;
+          }
+          if (turnOfPlayer == login && player2 == login) {
+              newTurnOf = player1;
+          }
+          let json = JSON.stringify({ "action": "Set TurnOf", "data": { "login": login, "turnOfPlayer": newTurnOf } });
+          ws.send(json);
       }
-      if (turnOfPlayer == login && player2 == login) {
-          newTurnOf = player1;
-      }
-      let json = JSON.stringify({ "action": "Set TurnOf", "data": { "login": login, "turnOfPlayer": newTurnOf } });
-      ws.send(json);
   }
 
 
@@ -327,16 +328,13 @@
       }
       if (i == 0 || j == 0) {
           win = true;
-          alert("Le joueur " + turnOfPlayer + " à gagner !!");
-          let json = JSON.stringify({ "message": "End Game", "winner": turnOfPlayer, "player1": player1, "player2": player2 });
+          let json = JSON.stringify({ "action": "End Game", "data": { "login": login, "winner": turnOfPlayer, "player1": player1, "player2": player2 } });
           ws.send(json);
       }
   }
 
   //Update GameBoarder les pieces
   function draw() {
-      nbCoup++;
-      // console.log("Matrice : " + gameBoard);
       let field = { row: 0, col: 0, value: 0 };
       for (var row = 0; row < 8; row++) {
           for (var col = 0; col < 8; col++) {
@@ -346,8 +344,11 @@
               drawField(field);
           }
       }
-      let json = JSON.stringify({ "action": "Update GameBoard", "data": { "login": login, "gameBoard": gameBoard } });
-      ws.send(json);
+      if (win == false) {
+
+          let json = JSON.stringify({ "action": "Update GameBoard", "data": { "login": login, "gameBoard": gameBoard } });
+          ws.send(json);
+      }
   }
 
   //crée le plateau de jeu et les piece

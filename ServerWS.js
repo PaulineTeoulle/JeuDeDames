@@ -93,13 +93,15 @@ wsServer.on('request', function(request) {
             }
 
             if (action == "End Game") {
-                let player1 = parsedJson.player1;
-                let player2 = parsedJson.player2;
-                let winner = parsedJson.winner;
+                console.log(parsedJson);
+                let player1 = parsedJson.data.player1;
+                let player2 = parsedJson.data.player2;
+                let winner = parsedJson.data.winner;
                 addFinishedGame(player1, player2, winner);
                 removeCurrentGame(player1, player2);
                 updateScores(player1, player2, winner);
-
+                sendWinnerToclient(player1, winner);
+                sendWinnerToclient(player2, winner);
             }
 
             if (action == "Set TurnOf") {
@@ -122,6 +124,13 @@ wsServer.on('request', function(request) {
         console.log("Déconnection d'un client - Serveur");
     });
 });
+
+
+function sendWinnerToclient(login, winner) {
+    let socket = getConnexionFromLogin(login);
+    let json = JSON.stringify({ "action": "End Game", "data": { "winner": winner } });
+    socket.send(json);
+}
 
 function setTurnOf(duo, turnOfPlayer) {
     let player1 = duo[0];
@@ -241,8 +250,6 @@ function updateTopScore(login) {
     });
 }
 
-
-
 function updatenumberOfGamePlayed(login) {
     userModel.Users.findOne({ pseudo: login }, 'numberOfGamePlayed', function(err, user) {
         if (err) return handleError(err);
@@ -358,7 +365,7 @@ function removeCurrentGame(player1) {
         },
         function(err, currentGame) {
             if (err) return handleError(err);
-            console.log("REMOVE CURRENT GAME");
+            console.log("Suppression du la currentGame");
         });
 }
 
@@ -370,24 +377,10 @@ function addFinishedGame(player1, player2, winner) {
     })
 
     finishedGame.save(function(err) {
-        console.log("ADD FINISHED GAME");
+        console.log("Ajout de la finishedGame");
         if (err) return handleError(err);
     });
 }
-
-function getGameBoard(duo) {
-    let pseudo1 = duo["pseudo1"][0];
-    let pseudo2 = duo["pseudo2"][0];
-
-    currentGameModel.CurrentGames.findOne({ pseudo1: pseudo1, pseudo2: pseudo2 }, function(err, currentGame) {
-        if (err) return handleError(err);
-        //console.log(gameBoard);
-        let json = JSON.stringify({ "action": "Update GameBoard", "data": { "gameBoard": currentGame.gameBoard, "turnOf": turnOfPlayer } });
-        connection.send(json);
-    });
-}
-
-
 
 function getConnexionFromLogin(login) {
     let connexion = null;

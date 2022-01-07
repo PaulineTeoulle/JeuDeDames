@@ -55,6 +55,8 @@ ws.onmessage = function(e) {
     } else if (object["action"] == "Update Turn") {
         updateTurn(object["data"].turnOfPlayer);
         console.log(isClientTurnOf());
+    } else if (object["action"] == "End Game") {
+        alert("Le gagnant est : " + object["data"].winner);
     }
 };
 
