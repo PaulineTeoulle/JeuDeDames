@@ -79,7 +79,7 @@ wsServer.on('request', function(request) {
             }
             if (action == "Update TurnOfPlayer") {
                 //console.log(login);
-                let turnOfPlayer = JSON.stringify(parsedJson.data.turnOfPlayer);
+                let turnOfPlayer = parsedJson.data.turnOfPlayer;
                 //console.log(turnOfPlayer);
                 let duo = getDuoFromLogin(login);
                 //console.log(duo);
@@ -91,9 +91,9 @@ wsServer.on('request', function(request) {
             }
 
             if (action == "End Game") {
-                let player1 = JSON.stringify(parsedJson.player1);
-                let player2 = JSON.stringify(parsedJson.player2);
-                let winner = JSON.stringify(parsedJson.winner);
+                let player1 = parsedJson.player1;
+                let player2 = parsedJson.player2;
+                let winner = parsedJson.winner;
                 addFinishedGame(player1, player2, winner);
                 removeCurrentGame(player1, player2);
                 updateScores(player1, player2, winner);
@@ -104,7 +104,8 @@ wsServer.on('request', function(request) {
                 getTurnOf(duo);
             }
             if (action == "Set TurnOf") {
-                let turnOfPlayer = JSON.stringify(parsedJson.data.turnOfPlayer);
+                console.log(parsedJson.data.turnOfPlayer);
+                let turnOfPlayer = parsedJson.data.turnOfPlayer;
                 let duo = getDuoFromLogin(login);
                 console.log(turnOfPlayer);
                 setTurnOf(duo, turnOfPlayer);
@@ -134,6 +135,7 @@ function setTurnOf(duo, turnOfPlayer) {
             currentGame.turnOfPlayer = turnOfPlayer;
             sendTurnOfPlayerToOneClient(player1, currentGame.turnOfPlayer);
             sendTurnOfPlayerToOneClient(player2, currentGame.turnOfPlayer);
+            console.log("SET TURN ; Tour de :" + currentGame.turnOfPlayer);
         });
 }
 
@@ -335,8 +337,10 @@ function sendTurnOfPlayerToDuo(duo, turnOfPlayer) {
 
 
 function sendTurnOfPlayerToOneClient(login, turnOfPlayer) {
+    console.log(turnOfPlayer);
     let socket = getConnexionFromLogin(login);
     let json = JSON.stringify({ "action": "Update Turn", "data": { "turnOfPlayer": turnOfPlayer } });
+    console.log(json);
     socket.send(json);
 }
 
@@ -351,7 +355,6 @@ function addCurrentgame(player1, player2) {
         randomStarterPseudo = player2;
     }
 
-    let randomStarter = { "pseudo": randomStarterPseudo, "number": 1 };
 
     let currentGame = new currentGameModel.CurrentGames({
         pseudo1: player1,
@@ -379,9 +382,9 @@ function addCurrentgame(player1, player2) {
         };
         usersInGameList.push(userInformations);
 
-        console.log("Tour de " + randomStarterPseudo);
-        sendInfoGameToClient(player1, randomStarter, player1, player2);
-        sendInfoGameToClient(player2, randomStarter, player1, player2);
+        console.log("Ajout game : Tour de " + randomStarterPseudo);
+        sendInfoGameToClient(player1, randomStarterPseudo, player1, player2);
+        sendInfoGameToClient(player2, randomStarterPseudo, player1, player2);
         if (err) return handleError(err);
     });
 

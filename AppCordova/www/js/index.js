@@ -38,22 +38,27 @@ ws.onmessage = function(e) {
         console.log(isClientTurnOf());
         createFields();
     } else if (object["action"] == "Update Turn") {
-
+        console.log(object["data"]);
         updateTurn(object["data"].turnOfPlayer);
+        console.log(isClientTurnOf());
     }
 };
 
-function setTurnOfPlayer(player) {
+/*function setTurnOfPlayer(player) {
     console.log("Mon login est : " + login);
-    console.log("Fin du tour de " + turnOfPlayer.pseudo);
+    console.log("Fin du tour de " + turnOfPlayer);
     turnOfPlayer = player;
     console.log("Début du tour de " + turnOfPlayer);
+}*/
+
+function updateTurn(newTurnOfPlayer) {
+    turnOfPlayer = newTurnOfPlayer;
 }
 
-function updateTurn(object) {
-    turnOfPlayer = object;
+function askForTurnOfPlayer() {
+    let json = JSON.stringify({ "action": "Get TurnOf", "data": { "login": login } });
+    ws.send(json);
 }
-
 
 let login;
 let mdp;
@@ -78,16 +83,16 @@ function saveScore() {
 
 function setStarter(starter) {
     turnOfPlayer = starter;
+    console.log("le starter ests et : " + turnOfPlayer);
 }
 
 function setPlayer(player, pseudo) {
     if (player == "player1") {
-        player1 = { "pseudo": pseudo, "number": 1 };
+        player1 = pseudo;
 
         console.log(player1);
     } else if (player == "player2") {
-        player2 = { "pseudo": pseudo, "number": 2 };
-
+        player2 = pseudo;
         console.log(player2);
     }
 }
