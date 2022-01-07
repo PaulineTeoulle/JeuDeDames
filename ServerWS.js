@@ -1,6 +1,7 @@
 //Connection a mongoDB
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://127.0.0.1:27017/JeuDeDames');
+
 //Appel aux modèles
 var userModel = require('UsersModel');
 var currentGameModel = require('CurrentGamesModel');
@@ -29,19 +30,12 @@ console.log("Serveur ouvert");
 wsServer.on('request', function(request) {
     const connection = request.accept(null, request.origin);
     console.log("Connection d'un client");
-
-
-    //Un socket 
-    //console.log(connection); 
     let loginInfo;
     //A la réception d'un message
     connection.on('message', function(message) {
-
-
         //Envoi d'un accusé de réception au client
         let json = JSON.stringify({ "action": "Message bien reçu - Serveur" });
         connection.send(json);
-
         console.log(message);
         //Gestion du message si c'est un JSON ou non
         let messageIsJSON = true;
@@ -54,47 +48,49 @@ wsServer.on('request', function(request) {
 
         if (messageIsJSON) {
             //Récupération des données JSON envoyées par le client
-
             let action = parsedJson.action;
             let login = parsedJson.data.login;
             loginInfo = parsedJson.data.login;
             let password = parsedJson.data.password;
 
+            //Gestion de l'authentification
             if (action == "User Authentication") {
                 addUserIfUnique(login, password, connection);
 
             }
+            //Gestion de la modification du score
             if (action == "Score Update") {
                 updateTopScore(login);
             }
-
+            //Gestion de l'attente
             if (action == "Waiting for a game") {
                 addUserInWaitingList(login, connection);
                 console.log(usersWaitingList);
                 if (usersWaitingList.length >= 2) {
                     let player1 = pickRandomUser(usersWaitingList);
-                    //let player2 = pickRandomUser(usersWaitingList);
                     console.log(player1);
                     let player2 = pickRandomUser(usersWaitingList);
                     console.log(player2);
                     addCurrentgame(player1, player2);
                 }
             }
+            //Gestion de la modification du board
             if (action == "Update GameBoard") {
                 let gameBoard = JSON.stringify(parsedJson.data.gameBoard);
                 let duo = getDuoFromLogin(login);
                 updateBoardInCurrentGame(duo, gameBoard);
             }
+            //Gestion des tours de jeu 
             if (action == "Update TurnOfPlayer") {
                 let turnOfPlayer = parsedJson.data.turnOfPlayer;
                 let duo = getDuoFromLogin(login);
                 sendTurnOfPlayerToDuo(duo, turnOfPlayer);
             }
-
+            //Gestion de la récupération du score
             if (action == "Get Score") {
                 getScore(login);
             }
-
+            //Gestion de la fin de partie
             if (action == "End Game") {
                 console.log(parsedJson);
                 let player1 = parsedJson.data.player1;
@@ -106,7 +102,7 @@ wsServer.on('request', function(request) {
                 sendWinnerToclient(player1, winner);
                 sendWinnerToclient(player2, winner);
             }
-
+            //Gestion de la modification du tour de jeu
             if (action == "Set TurnOf") {
                 console.log(parsedJson.data.turnOfPlayer);
                 let turnOfPlayer = parsedJson.data.turnOfPlayer;
@@ -119,7 +115,6 @@ wsServer.on('request', function(request) {
 
     //A la fermeture d'une connection
     connection.on('close', function(reasonCode, description) {
-
         removeUserInGameList(loginInfo);
         removeUserInWaitingList(loginInfo);
         removeUserInConnectedList(loginInfo);
@@ -129,11 +124,6 @@ wsServer.on('request', function(request) {
 });
 
 
-function sendWinnerToclient(login, winner) {
-    let socket = getConnexionFromLogin(login);
-    let json = JSON.stringify({ "action": "End Game", "data": { "winner": winner } });
-    socket.send(json);
-}
 
 function setTurnOf(duo, turnOfPlayer) {
     let player1 = duo[0];
@@ -169,10 +159,7 @@ function connectUser(login, password, connection) {
     connection.send(json);
 }
 
-function addUserInWaitingList(login) {
-    usersWaitingList.push(login);
-}
-
+//Retoune un user random en attente
 function pickRandomUser(usersWaitingList) {
     let index1 = Math.floor(Math.random() * usersWaitingList.length);
     let user = usersWaitingList[index1];
@@ -180,6 +167,7 @@ function pickRandomUser(usersWaitingList) {
     return (user);
 }
 
+//Remove de l'user dans la waiting list
 function removeUserInWaitingList(login) {
     let socket;
     socket = getConnexionFromLogin(login);
@@ -190,6 +178,11 @@ function removeUserInWaitingList(login) {
     }
 }
 
+//Ajout de l'user dans la waiting list
+function addUserInWaitingList(login) {
+    usersWaitingList.push(login);
+}
+//Remove de l'user dans la inGame list
 function removeUserInGameList(login) {
     usersInGameList.forEach(element => {
         element.duo.forEach(player => {
@@ -200,7 +193,7 @@ function removeUserInGameList(login) {
         })
     });
 }
-
+//Remove de l'user dans la connected list
 function removeUserInConnectedList(login) {
     let socket;
     socket = getConnexionFromLogin(login);
@@ -210,7 +203,7 @@ function removeUserInConnectedList(login) {
         usersConnectedList.splice(indexOfUser, 1);
     }
 }
-
+//Ajout user si unique
 function addUserIfUnique(login, password, connection) {
     let instance = new userModel.Users({ pseudo: login, password: password, numberOfGamePlayed: 0, numberOfGameWon: 0 });
     userModel.Users.find({ pseudo: login, password: password }, function(err, user) {
@@ -226,7 +219,7 @@ function addUserIfUnique(login, password, connection) {
         }
     });
 }
-
+//Creation des topScore (init à 0)
 function createTopScore(login) {
     let instanceTopScore = new topScoreModel.TopScores({ pseudo: login, score: 0 });
     instanceTopScore.save(function(err) {
@@ -234,6 +227,7 @@ function createTopScore(login) {
     });
 }
 
+//Update des topscore
 function updateTopScore(login) {
     let score = 0;
 
@@ -252,7 +246,7 @@ function updateTopScore(login) {
         user.score = score;
     });
 }
-
+//Update des games jouées par l'user
 function updatenumberOfGamePlayed(login) {
     userModel.Users.findOne({ pseudo: login }, 'numberOfGamePlayed', function(err, user) {
         if (err) return handleError(err);
@@ -260,15 +254,17 @@ function updatenumberOfGamePlayed(login) {
     });
 }
 
+//Update des games gagnées par l'user
 function updatenumberOfGameWon(login) {
     userModel.Users.findOne({ pseudo: login }, 'numberOfGameWon', function(err, user) {
 
         if (err) return handleError(err);
         user.numberOfGameWon += 1;
     });
-
 }
 
+
+//Update des games courantes 
 function updateBoardInCurrentGame(duo, gameBoard) {
     let player1 = duo[0];
     let player2 = duo[1];
@@ -285,29 +281,30 @@ function updateBoardInCurrentGame(duo, gameBoard) {
 }
 
 
+//Message d'update
 function sendGameBoardToClient(login, gameBoard) {
     let socket = getConnexionFromLogin(login);
     let json = JSON.stringify({ "action": "Update GameBoard", "data": { "gameBoard": gameBoard } });
     socket.send(json);
 }
 
+//Message d'info de game
 function sendInfoGameToClient(login, starter, player1, player2) {
     let socket = getConnexionFromLogin(login);
     let json = JSON.stringify({ "action": "Get Info Init Game", "data": { "starter": starter, "player1": player1, "player2": player2 } });
     socket.send(json);
 }
 
-function getScore(login) {
+
+//Message de winner
+function sendWinnerToclient(login, winner) {
     let socket = getConnexionFromLogin(login);
-    topScoreModel.TopScores.find(function(err, scores) {
-
-        if (err) return handleError(err);
-        let json = JSON.stringify({ "action": "Get Score", "data": { "scores": scores } });
-        socket.send(json);
-    });
-
+    let json = JSON.stringify({ "action": "End Game", "data": { "winner": winner } });
+    socket.send(json);
 }
 
+
+//Message de tour changé au duo
 function sendTurnOfPlayerToDuo(duo, turnOfPlayer) {
     let player1 = duo[0];
     let player2 = duo[1];
@@ -316,6 +313,7 @@ function sendTurnOfPlayerToDuo(duo, turnOfPlayer) {
 
 }
 
+//Message de tour changé à  un client
 function sendTurnOfPlayerToOneClient(login, turnOfPlayer) {
     console.log(turnOfPlayer);
     let socket = getConnexionFromLogin(login);
@@ -324,6 +322,7 @@ function sendTurnOfPlayerToOneClient(login, turnOfPlayer) {
     socket.send(json);
 }
 
+//Ajout de game en cours
 function addCurrentgame(player1, player2) {
     let currentGame = new currentGameModel.CurrentGames({
         pseudo1: player1,
@@ -350,7 +349,7 @@ function addCurrentgame(player1, player2) {
         sendInfoGameToClient(player2, player1, player1, player2);
     });
 }
-
+//Creation des infosdu duo
 function createDuoInfo(player1, player2) {
     let userInformations = {
         "duo": [
@@ -361,7 +360,7 @@ function createDuoInfo(player1, player2) {
     usersInGameList.push(userInformations);
     return userInformations;
 }
-
+//Suppression de la game courrante
 function removeCurrentGame(player1) {
     currentGameModel.CurrentGames.findOneAndRemove({
             $or: [{ pseudo1: player1 }, { pseudo2: player1 }]
@@ -372,6 +371,7 @@ function removeCurrentGame(player1) {
         });
 }
 
+//Ajout de la game finie
 function addFinishedGame(player1, player2, winner) {
     let finishedGame = new finishedGameModel.FinishedGames({
         pseudo1: player1,
@@ -385,6 +385,7 @@ function addFinishedGame(player1, player2, winner) {
     });
 }
 
+//Socket d'un client
 function getConnexionFromLogin(login) {
     let connexion = null;
     usersConnectedList.forEach(element => {
@@ -395,6 +396,7 @@ function getConnexionFromLogin(login) {
     return connexion;
 }
 
+//Duo à partir d'un user
 function getDuoFromLogin(login) {
     let newDuo = null;
     usersInGameList.forEach(duo => {
@@ -405,4 +407,15 @@ function getDuoFromLogin(login) {
         });
     });
     return newDuo;
+}
+
+//Récuperation des scores
+function getScore(login) {
+    let socket = getConnexionFromLogin(login);
+    topScoreModel.TopScores.find(function(err, scores) {
+
+        if (err) return handleError(err);
+        let json = JSON.stringify({ "action": "Get Score", "data": { "scores": scores } });
+        socket.send(json);
+    });
 }
