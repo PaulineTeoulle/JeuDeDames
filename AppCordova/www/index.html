@@ -55,13 +55,13 @@
 
 <body style="background-color: #262421;">
 
+
     <section id="log" class="vh-100" style="background-color: #E8D0AA;">
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-12 col-md-8 col-lg-6 col-xl-5">
                     <div class="card shadow-2-strong" style="font-size: large; color: white; background-color: #A67D5D; border-radius: 1rem;">
                         <div class="card-body p-5 text-center">
-
                             <h2 class="mb-1">Bonjour !</h2>
                             <p style="font-size: large; color: white;" class="mb-1" >Connectez-vous pour défier les meilleurs joueurs de dames.</p>
                             <br/>
@@ -77,7 +77,6 @@
 
                             <button class="btn btn-dark btn-lg btn-block" type="button" id="AuthButton" onclick="authentification()">Se connecter</button>
                             <p id="messageServeur"></p>
-
                         </div>
                     </div>
                 </div>
@@ -86,13 +85,16 @@
     </section>
 
     <section  id="choix" id="log" class="vh-100" style=" display: none;background-color: #E8D0AA;">
+
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-12 col-md-8 col-lg-6 col-xl-5">
                     <div class="card shadow-2-strong" style="font-size: large; color: white; background-color: #A67D5D; border-radius: 1rem;">
                         <div class="card-body p-5 text-center">
+
                             <button style="margin:5px; width: -webkit-fill-available;" class="btn btn-dark btn-lg btn-block" type="button" id="nGame" onclick="handleNewGame()">Nouvelle partie</button>
                             <button style="margin:5px; width: -webkit-fill-available;" class="btn btn-dark btn-lg btn-block" type="button" id="class" onclick="displayClassement()">Classement général</button>
+
                         </div>
                     </div>
                 </div>
@@ -100,21 +102,19 @@
         </div>
     </section>
 
-
-    <div id="classement" style="display: none;">
-        <table>
-            <tr>
-                <th>Utilisateur</th>
-                <th>Score</th>
-            </tr>
-            <tr>
-                <td id="user"></td>
-                <!--récupérer user base de données-->
-                <td id="score">100</td>
-                <!--récupérer score base de données-->
-            </tr>
-        </table>
-    </div>
+    <section id="score" class="vh-100" style="background-color: #508bfc;display: none;">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                    <div class="card shadow-2-strong" style="border-radius: 1rem;">
+                        <div class="card-body p-5 text-center">
+                            <div id="scoreBoard"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!--WaitingRoom-->
     <div id="checkeredLoading" style="display: none;">
@@ -131,8 +131,6 @@
     </div>
 
     <div id="board" style="display: none;">
-
-        <!--table svg-->
     </div>
 </body>
 
