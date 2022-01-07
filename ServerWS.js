@@ -32,7 +32,7 @@ wsServer.on('request', function(request) {
 
     //Un socket 
     //console.log(connection); 
-
+    let loginInfo;
     //A la réception d'un message
     connection.on('message', function(message) {
 
@@ -54,6 +54,7 @@ wsServer.on('request', function(request) {
             //Récupération des données JSON envoyées par le client
             let action = parsedJson.action;
             let login = parsedJson.data.login;
+            loginInfo = parsedJson.data.login;
             let password = parsedJson.data.password;
 
             if (action == "User Authentication") {
@@ -108,12 +109,13 @@ wsServer.on('request', function(request) {
 
     //A la fermeture d'une connection
     connection.on('close', function(reasonCode, description) {
-        //removeUserInConnectedList(loginInfo, connectionInfo);
-        //removeUserInWaitingList(loginInfo, connectionInfo);
+        removeUserInGameList(loginInfo);
+        removeUserInWaitingList(loginInfo);
+        removeUserInConnectedList(loginInfo);
+        removeCurrentGame(loginInfo);
         console.log("Déconnection d'un client - Serveur");
     });
 });
-
 
 function setTurnOf(duo, turnOfPlayer) {
     let player1 = duo[0];
@@ -146,8 +148,7 @@ function connectUser(login, password, connection) {
     let userInformations = { "pseudo": login, "socket": connection };
     usersConnectedList.push(userInformations);
     //updateConnectedUser(login);
-    //getConnectedUser(login);
-    getConnexionFromLogin(login);
+    //getConnexionFromLogin(login);
     let json = JSON.stringify({ "action": "User connected" });
     connection.send(json);
 }
@@ -163,70 +164,52 @@ function pickRandomUser(usersWaitingList) {
     return (user);
 }
 
-function removeUserInWaitingList(index) {
-    usersWaitingList.splice(index, 1);
-}
-
-/*function removeUserInWaitingList(login, connection) {
+function removeUserInWaitingList(login) {
+    let socket;
+    socket = getConnexionFromLogin(login);
     if (usersWaitingList.length != 0) {
-        console.log(usersWaitingList);
-        console.log("removeusersWaitingList");
-        console.log(login);
-
-        let userInformations = [login, connection];
+        let userInformations = [login, socket];
         let indexOfUser = usersWaitingList.indexOf(userInformations);
         usersWaitingList.splice(indexOfUser, 1);
-        console.log(usersWaitingList);
     }
-}*/
+}
 
-/*function removeUserInConnectedList(login, connection) {
+function removeUserInGameList(login) {
+    usersInGameList.forEach(element => {
+        element.duo.forEach(player => {
+            if (player == login) {
+                let indexOfUser = usersInGameList.indexOf(element);
+                usersInGameList.splice(indexOfUser, 1);
+            }
+        })
+    });
+}
+
+function removeUserInConnectedList(login) {
+    let socket;
+    socket = getConnexionFromLogin(login);
+    let userInformations = [login, socket];
     if (usersConnectedList.length != 0) {
-        console.log(usersConnectedList);
-        console.log("usersConnectedList");
-        console.log(login);
-
-
         let indexOfUser = usersConnectedList.indexOf(userInformations);
         usersConnectedList.splice(indexOfUser, 1);
-        console.log(usersConnectedList);
     }
-}*/
+}
 
 function addUserIfUnique(login, password, connection) {
-    userModel.Users.countDocuments({ pseudo: login, password: password }, function(err, count) {
-        if (count == 0) {
-            console.log("Unique");
-            console.log("Ajout");
-            addUser(login, password, connection);
-            //getConnectedUser(login);
-            connectUser(login, password, connection);
-        } else {
-            connectUser(login, password, connection);
-        }
-    });
-}
-
-//Ajout d'un utilisateur
-function addUser(login, password, connection) {
-    let instance = new userModel.Users({ pseudo: login, password: password, numberOfGamePlayed: 0, numberOfGameWon: 0, isConnected: false });
-    instance.save(function(err) {
-        if (err) return handleError(err);
-        createTopScore(login);
-    });
-}
-
-function updateConnectedUser(login) {
-    userModel.Users.findOne({ pseudo: login }, 'numberOfGamePlayed numberOfGameWon', function(err, user) {
-        if (err) return handleError(err);
-        user.isConnected = true;
-    });
-}
-
-function getConnectedUser(login) {
-    userModel.Users.findOne({ pseudo: login }, function(err, user) {
+    let instance = new userModel.Users({ pseudo: login, password: password, numberOfGamePlayed: 0, numberOfGameWon: 0 });
+    userModel.Users.find({ pseudo: login, password: password }, function(err, user) {
         if (err) return handleError(err);
         console.log(user);
+        if (user.length != 0) {
+            console.log("user >0");
+            connectUser(login, password, connection);
+        } else if (user.length == 0) {
+            instance.save(function(err) {
+                if (err) return handleError(err);
+                createTopScore(login);
+            });
+            connectUser(login, password, connection);
+        }
     });
 }
 
@@ -252,21 +235,19 @@ function updateTopScore(login) {
     });
 }
 
+
 function updatenumberOfGamePlayed(login) {
     userModel.Users.findOne({ pseudo: login }, 'numberOfGamePlayed', function(err, user) {
         if (err) return handleError(err);
         user.numberOfGamePlayed += 1;
     });
-    //console.log("updatenumberOfGamePlayed")
 }
-
 
 function updatenumberOfGameWon(login) {
     userModel.Users.findOne({ pseudo: login }, 'numberOfGameWon', function(err, user) {
         if (err) return handleError(err);
         user.numberOfGameWon += 1;
     });
-    //console.log("updatenumberOfGameWon")
 }
 
 function updateBoardInCurrentGame(duo, gameBoard) {
@@ -313,7 +294,6 @@ function sendTurnOfPlayerToDuo(duo, turnOfPlayer) {
 
 }
 
-
 function sendTurnOfPlayerToOneClient(login, turnOfPlayer) {
     console.log(turnOfPlayer);
     let socket = getConnexionFromLogin(login);
@@ -323,17 +303,6 @@ function sendTurnOfPlayerToOneClient(login, turnOfPlayer) {
 }
 
 function addCurrentgame(player1, player2) {
-    let randomStarterInt = Math.floor(Math.random() * 2);
-
-
-    let randomStarterPseudo;
-    if (randomStarterInt == 1) {
-        randomStarterPseudo = player1;
-    } else {
-        randomStarterPseudo = player2;
-    }
-
-
     let currentGame = new currentGameModel.CurrentGames({
         pseudo1: player1,
         pseudo2: player2,
@@ -347,11 +316,12 @@ function addCurrentgame(player1, player2) {
             [0, 2, 0, 2, 0, 2, 0, 2],
             [2, 0, 2, 0, 2, 0, 2, 0]
         ],
-        starter: randomStarterPseudo,
-        turnOfPlayer: randomStarterPseudo
+        starter: player1,
+        turnOfPlayer: player1
     });
 
     currentGame.save(function(err) {
+        if (err) return handleError(err);
         let userInformations = {
             "duo": [
                 player1,
@@ -359,19 +329,15 @@ function addCurrentgame(player1, player2) {
             ]
         };
         usersInGameList.push(userInformations);
+        sendInfoGameToClient(player1, player1, player1, player2);
+        sendInfoGameToClient(player2, player1, player1, player2);
 
-        console.log("Ajout game : Tour de " + randomStarterPseudo);
-        sendInfoGameToClient(player1, randomStarterPseudo, player1, player2);
-        sendInfoGameToClient(player2, randomStarterPseudo, player1, player2);
-        if (err) return handleError(err);
     });
-
-
 }
 
-function removeCurrentGame(player1, player2) {
+function removeCurrentGame(player1) {
     currentGameModel.CurrentGames.findOneAndRemove({
-            $or: [{ pseudo1: player1 }, { pseudo1: player2 }]
+            $or: [{ pseudo1: player1 }, { pseudo2: player1 }]
         },
         function(err, currentGame) {
             if (err) return handleError(err);
